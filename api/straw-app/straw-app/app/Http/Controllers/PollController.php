@@ -2053,35 +2053,44 @@ class PollController extends BaseController {
         if( $cnt ) {
 
             if( $poll['imageLink'] != 'null' && strlen( $poll['imageLink'] ) > 0 ) {
-
+                die('if');
                 $pollImageUrl = url('storage/polls/'. $poll['imageLink']);
                 list( $pollWidth, $pollHeight ) = getimagesize( $pollImageUrl );
 
                 $poll['pollImageDetails'] = $pollImageUrl;
+            } else {
 
-                $poll['baseUrl'] = url();
-                $poll['slug'] = url() .'/poll/share/'. $in_slug;
+                $poll['pollImageDetails'] = '';
+            }
+            $poll['baseUrl'] = url();
+            $poll['slug'] = url() .'/poll/share/'. $in_slug;
 
-                $tmpPollArr = explode( '#', $poll['question'] );
-                
-                if( count($tmpPollArr) ) {
+            $tmpPollArr = explode( '#', $poll['question'] );
+            
+            if( count($tmpPollArr) ) {
 
-                    foreach ( $tmpPollArr as $key => $value ) {
-                        
-                        if( $key == 0 ) {
+                foreach ( $tmpPollArr as $key => $value ) {
+                    
+                    if( $key == 0 ) {
 
-                            $poll['question'] = $tmpPollArr[$key];
-                        } else {
+                        $poll['question'] = $tmpPollArr[$key];
+                    } else {
 
-                            $poll['tags'][] = '#'. $tmpPollArr[$key];
-                            $tagsStr .= $tagsStr .' '. $tmpPollArr[$key];
-                        }
+                        $poll['tags'][] = '#'. $tmpPollArr[$key];
+                        $tagsStr .= $tagsStr .' '. $tmpPollArr[$key];
                     }
-                    $poll['tagsStr'] = $tagsStr;
                 }
+                $poll['tagsStr'] = $tagsStr;
+            }
+            return view('share-poll.sharePollPage', [ 'poll' => $poll ]);
+        } else {
 
-                return view('share-poll.sharePollPage', [ 'poll' => $poll ]);
-            }            
-        } 
+            return response()->json([
+                'message' => 'Poll not found!',
+                'error' => [ 'id' => 'Poll not found!' ],
+                'errorArr' => [ 'Poll not found!' ],
+                'data'  =>  $poll,
+            ], 200);
+        }
     }
 }
