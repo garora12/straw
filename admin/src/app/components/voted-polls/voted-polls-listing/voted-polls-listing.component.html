@@ -1,0 +1,122 @@
+<app-common-header></app-common-header>
+
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <section class="content-header">
+    <h1>
+      Voted Polls
+      <small>Listing Voted Polls</small>
+    </h1>
+    <ol class="breadcrumb">
+      <!-- <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
+      <li class="active">Here</li> -->
+    </ol>
+  </section>
+
+    <!-- Main content -->
+    <section class="content container-fluid">
+      
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="box">
+            <div class="box-header">
+                <h3 class="box-title">Voted Polls Table Data</h3>
+                <div class="box-tools">
+                  <div class="input-group input-group-sm" style="width: 150px;">
+                    <input type="text" name="table_search" class="form-control pull-right" placeholder="Search" (keyup)="search($event)">
+                    <div class="input-group-btn">
+                      <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+                    </div>
+                  </div>
+                </div>
+            </div>
+
+            <!-- /.box-header -->
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Question</th>
+                        <th>User Name</th>
+                        <th>Allowed Comments</th>
+                        <th>Total Comments</th>
+                        <!-- <th>
+                          Action
+                          <span class="pull-right">
+                            <a class="btn btn-md btn-success" href="javascript:void(0);" routerLink="/polls/master">Add New</a>
+                          </span>
+                        </th> -->
+                      </tr>
+                    </thead>
+                    <tbody *ngIf="polls?.length;else no_data_templ">
+                      
+                      <tr *ngFor="let poll of polls; let i = index">
+                        <td *ngIf="i < 9;else tenth_td">{{ currentPage - 1 }}{{ i + 1 }}</td>                          
+                        <ng-template #tenth_td>
+                          <td>{{ (currentPage * 10) }}</td>                          
+                        </ng-template>
+                        <td>{{ poll.question }}</td>
+                        <td>{{ poll.userName }}</td>
+                        <td>{{ poll.allowComments }}</td>   
+                        <td>{{ poll.totalComments }}</td>   
+                        <!-- <td>
+                            <a href="javascript:void(0);" routerLink="/polls/master/{{ poll.id }}">
+                              <span class="badge bg-green">
+                                <i class="fa fa-fw fa-pencil"></i>
+                              </span>
+                            </a>
+
+                            &nbsp;<a href="javascript:void(0);" >
+                              <span class="badge bg-red" (click)="softDelete( poll.id );">
+                                <i class="fa fa-fw fa-trash"></i>
+                              </span>
+                            </a>
+                        </td> -->
+                      </tr>
+                    </tbody>
+
+                    <ng-template #no_data_templ>
+                      <tbody>
+                        <tr>
+                          <td class="text-center" colspan="6">No record found!</td>
+                        </tr>
+                      </tbody>
+                    </ng-template>
+                </table>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="col-xs-12 text-center">
+            <ul class="pagination pagination-sm">
+              <li class="page-item"><a class="page-link" href="javascript:void(0);" (click)="first()">First</a></li>
+              <li class="page-item"><a class="page-link" href="javascript:void(0);" (click)="prev()">Prev</a></li>
+    
+              <!-- <li class="page-item" *ngFor="let item of createRange(totalPages); let i = index" (click)="getUserListing(i)"><a class="page-link" href="javascript:void(0);">{{ i + 1 }}</a></li> -->
+    
+              <ng-container *ngFor="let item of createRange(totalPages); let i = index">
+                
+                <!-- ellipsize -->
+                <!-- <li *ngIf="i%limit === 0" class="page-item"><a class="page-link" href="javascript:void(0);">...</a></li> -->
+    
+                <!-- add class active -->
+                <!-- <li *ngIf="currentPage == (i+1)" (click)="getUserListing(i)" class="page-item active"><a class="page-link" href="javascript:void(0);">{{ i + 1 }}</a></li> -->
+    
+                <!-- If not active -->
+                <!-- <li *ngIf="currentPage != (i+1)" (click)="getUserListing(i)" class="page-item"><a class="page-link" href="javascript:void(0);">{{ i + 1 }}</a></li> -->
+              </ng-container>
+              
+              <li class="page-item"><a class="page-link" href="javascript:void(0);" (click)="next()">Next</a></li>
+              <li class="page-item"><a class="page-link" href="javascript:void(0);" (click)="last()">Last</a></li>
+            </ul>
+          </div>
+
+      </div>
+       
+    </section>
+</div>
+
+<app-common-footer></app-common-footer>

@@ -1,0 +1,253 @@
+<app-common-header></app-common-header>
+
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <section class="content-header">
+    <h1>
+      {{ headerTxt }}
+      <small>{{ headerTxt }} information</small>
+    </h1>
+    <ol class="breadcrumb">
+      <!-- <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
+      <li class="active">Here</li> -->
+    </ol>
+  </section>
+
+  <!-- Main content -->
+  <section class="content container-fluid">
+
+    <div class="row">
+		<div class="col-md-12 offset-md-3">
+			<form [formGroup]="pollForm" (ngSubmit)="onSubmit()">
+				
+				<div class="col-md-12">
+					<label>Question</label>
+					<textarea placeholder="Question" formControlName="question" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.question.errors }"></textarea>
+          			<div *ngIf="submitted && f.question.errors" class="invalid-feedback">
+						<div *ngIf="f.question.errors.required">Question is required</div>
+					</div>
+				</div>
+
+				<div class="col-md-6">
+					<label>User</label>
+					<select formControlName="userId" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.userId.errors }">
+						<option value="">Select User</option>
+						<option *ngFor="let user of usersList; let i = index" value="{{ user.id }}">{{ user.userName }}</option>
+					</select>
+					<div *ngIf="submitted && f.userId.errors" class="invalid-feedback">
+						<div *ngIf="f.userId.errors.required">User is required</div>
+					</div>
+				</div>
+
+				<div class="col-md-6">
+					<label>Allow Comments</label>
+					<select formControlName="allowComments" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.allowComments.errors }">
+						<option value="">Set Allow Comments</option>
+						<option value="YES">YES</option>
+						<option value="NO">NO</option>
+					</select>
+					<div *ngIf="submitted && f.allowComments.errors" class="invalid-feedback">
+						<div *ngIf="f.allowComments.errors.required">Allow Comments is required</div>
+					</div>
+				</div>
+
+				<div class="col-md-6">
+					<label>Years</label>
+					<ng-multiselect-dropdown
+						[ngModelOptions]="{standalone: true}"
+						[placeholder]="'Select Years'"
+						[data]="dropdownYearList" 
+						[settings]="dropdownYearSettings"
+						[(ngModel)]="selectedYearItems"
+						(onSelect)="onYearSelect($event, true)"
+						(onDeSelect)="onYearSelect($event, false)"
+						(onSelectAll)="onYearSelectAll($event, true)"
+						(onDeSelectAll)="onYearSelectAll($event, false)">
+					</ng-multiselect-dropdown>
+					<div *ngIf="submitted && f.years.errors" class="invalid-feedback">
+						<div *ngIf="f.years.errors.required">Years are required</div>
+					</div>
+				</div>
+
+				<div class="col-md-6">
+					<label>Countries</label>
+					<ng-multiselect-dropdown
+						[ngModelOptions]="{standalone: true}"
+						[placeholder]="'Select Countries'"
+						[data]="dropdownCountryList" 
+						[settings]="dropdownCountrySettings"
+						[(ngModel)]="selectedCountryItems"
+						(onSelect)="onCountrySelect($event, true)"
+						(onDeSelect)="onCountrySelect($event, false)"
+						(onSelectAll)="onCountrySelectAll($event, true)"
+						(onDeSelectAll)="onCountrySelectAll($event, false)">
+					</ng-multiselect-dropdown>
+					<div *ngIf="submitted && f.countryIds.errors" class="invalid-feedback">
+						<div *ngIf="f.countryIds.errors.required">Countries are required</div>
+					</div>
+				</div>
+        
+				<div class="col-md-6">
+					<!-- <label>Branches</label> -->
+					<label>Classes</label>
+					<ng-multiselect-dropdown
+						[ngModelOptions]="{standalone: true}"
+						[placeholder]="'Select Clases'"
+						[data]="dropdownBranchList"
+						[settings]="dropdownBranchSettings"
+						[(ngModel)]="selectedBranchItems"
+						(onSelect)="onBranchSelect($event, true)"
+						(onDeSelect)="onBranchSelect($event, false)"
+						(onSelectAll)="onBranchSelectAll($event, true)"
+						(onDeSelectAll)="onBranchSelectAll($event, false)">
+					</ng-multiselect-dropdown>
+					<div *ngIf="submitted && f.branchIds.errors" class="invalid-feedback">
+						<div *ngIf="f.branchIds.errors.required">Branches are required</div>
+					</div>
+				</div>
+
+				<div class="col-md-6">
+					<label>Genders</label>
+					<ng-multiselect-dropdown
+						[ngModelOptions]="{standalone: true}"
+						[placeholder]="'Select Genders'"
+						[data]="dropdownGenderList"
+						[settings]="dropdownGenderSettings"
+						[(ngModel)]="selectedGenderItems"
+						(onSelect)="onGenderSelect($event, true)"
+						(onDeSelect)="onGenderSelect($event, false)"
+						(onSelectAll)="onGenderSelectAll($event, true)"
+						(onDeSelectAll)="onGenderSelectAll($event, false)">
+					</ng-multiselect-dropdown>
+					<div *ngIf="submitted && f.genders.errors" class="invalid-feedback">
+						<div *ngIf="f.genders.errors.required">Genders are required</div>
+					</div>
+				</div>
+
+				<!-- <div class="col-md-6">
+					<label>Groups</label>
+					<ng-multiselect-dropdown
+						[ngModelOptions]="{standalone: true}"
+						[placeholder]="'Select Groups'"
+						[data]="dropdownGroupList"
+						[settings]="dropdownGroupSettings"
+						[(ngModel)]="selectedGroupItems"
+						(onSelect)="onGroupSelect($event, true)"
+						(onDeSelect)="onGroupSelect($event, false)"
+						(onSelectAll)="onGroupSelectAll($event, true)"
+						(onDeSelectAll)="onGroupSelectAll($event, false)">
+					</ng-multiselect-dropdown>
+					<div *ngIf="submitted && f.groupIds.errors" class="invalid-feedback">
+						<div *ngIf="f.groupIds.errors.required">Groups are required</div>
+					</div>
+				</div> -->
+
+				<!-- multi group starts here -->
+				<div class="col-md-6" style="margin-top: 10px;">
+					<label>Groups</label>
+					<ul class="list-group">
+						<li class="list-group-item">
+						<span (click)="selectUnselectAll(data)">
+							<span *ngIf="data.isAllSelected;else noneSelected">Unselect All </span>
+							<ng-template #noneSelected>Select All </ng-template>
+						</span>
+						<span (click)="expandCollapseAll(data)">
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							<i class="fas fa-angle-up" *ngIf="data.isAllCollapsed;else isCollapsed"></i>
+							<ng-template #isCollapsed><i class="fas fa-angle-down"></i></ng-template>
+						</span>
+						</li>
+					</ul>
+					<ul class="list-group cd-list">
+						<li class="list-group-item" *ngFor="let item of data.ParentChildchecklist">
+							<input type="checkbox" [ngModelOptions]="{standalone: true}" [(ngModel)]="item.isSelected" name="list_name" value="{{item.id}}" (ngModelChange)="parentCheck(item)" />
+							<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{item.value}} </label>
+								<span (click)="expandCollapse(item)">
+									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+									<i class="fas fa-angle-up" *ngIf="item.isClosed;else isCollapsed"></i>
+									<ng-template #isCollapsed><i class="fas fa-angle-down"></i></ng-template>
+								</span>
+							
+							<div class="child-list" [hidden]="item.isClosed">
+								<ul class="list-group level-two">
+									<li class="list-group-item level-two" *ngFor="let itemChild of item.childList">
+										<input type="checkbox" [ngModelOptions]="{standalone: true}" [(ngModel)]="itemChild.isSelected" name="list_name_child" value="{{itemChild.id}}" (ngModelChange)="childCheck(item,item.childList)" />
+										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{itemChild.value}}
+									</li>
+								</ul>
+							</div>
+						</li>
+					</ul>
+				</div>
+				<!-- multi group ends here -->
+
+				<div class="col-md-12" *ngIf="hiddenFormFieldsFlag" style="margin-top: 10px;">
+					<label>Image</label>
+					<input type="file" placeholder="Image" (change)="onChange($event)" formControlName="imageLink" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.imageLink.errors }"  accept="image/x-png,image/jpeg" />
+					<div *ngIf="submitted && f.imageLink.errors" class="invalid-feedback">
+						<div *ngIf="f.groupIds.errors.required">Image is required</div>
+					</div>
+					<div *ngIf="isImageInvalid" style="color: red">Only PNG/JPG images are allowed</div>
+        		</div>
+
+				<div class="col-md-12" *ngIf="isImageExistsFlag">
+					<a class="btn btn-danger" title="Delete Image" (click)="deletePollImageByPollId();">
+						<i class="fa fa-fw fa-trash"></i>
+					</a>
+				</div>
+				<div class="col-md-12 text-center" style="margin-top: 10px;">
+
+					<img style="width: 95%; height: 95%;"
+					[src]="imageUrl"
+					alt="Place image title"
+					*ngIf="isImageExistsFlag; else noImageFound">
+				   <ng-template #noImageFound>
+						<img src="https://via.placeholder.com/300" alt="Fallbackimage">
+				   </ng-template>
+				</div>
+
+				<div class="col-md-12" *ngIf="!hiddenFormFieldsFlag" style="margin-top: 10px;">
+					<label>Change Poll Pic</label>
+					<input type="file" placeholder="Image" (change)="onChange($event)" formControlName="imageLink" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.imageLink.errors }" accept="image/*" />
+					<div *ngIf="submitted && f.imageLink.errors" class="invalid-feedback">
+						<div *ngIf="f.groupIds.errors.required">Image is required</div>
+					</div>
+					<div *ngIf="isImageInvalid" style="color: red">Only PNG/JPG images are allowed</div>
+				</div>
+
+				<div class="col-md-12" style="margin-top: 10px;">
+					<button [disabled]="!enableSubmitButton" class="btn btn-primary" >{{ buttonTxt }}</button>
+				</div>
+
+				<!-- <div class="col-md-6">
+					<label>Test</label>
+					<select class="form-control" multiple style="height: 500px;">
+
+						<optgroup *ngFor="let parent of testData" label="{{parent.name}}">
+							<option *ngFor="let child of parent.children">{{ child.name }}</option>
+						</optgroup>
+					</select>
+				</div> -->	
+
+			</form>
+		</div>
+
+		<!-- <div class="col-md-6" *ngIf="isImageExistsFlag">
+
+			<img style="width: 100%; height: 100%;"
+			[src]="imageUrl"
+			alt="Place image title"
+			*ngIf="isImageExistsFlag; else noImageFound">
+		   <ng-template #noImageFound>
+				<img style="width: 100%; height: 100%;" src="fallbackImage.png" alt="Fallbackimage">
+		   </ng-template>
+		</div> -->
+	</div>
+
+  </section>
+  <!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
+
+<app-common-footer></app-common-footer>

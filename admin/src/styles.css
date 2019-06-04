@@ -1,0 +1,36 @@
+/* You can add global styles to this file, and also import other style files */
+.invalid-feedback {
+    color: red;
+}
+
+.user-panel>.image>img {
+    width: 100%;
+    max-width: 45px;
+    height: 40px !important;
+}
+
+
+/*--sidebar css start--*/
+.user-panel {
+    min-height: 55px;
+}
+
+.user-panel>.info {
+    left: 0px;
+}
+
+.content-wrapper{
+    min-height: 84vh;
+}
+body{
+   background-color:#222d32 !important;
+}
+body.login-page{
+    background: #d2d6de !important;
+}
+.sidebar .user-panel{
+    display: none;
+}
+.sidebar-menu .header{
+    display: none;
+}
