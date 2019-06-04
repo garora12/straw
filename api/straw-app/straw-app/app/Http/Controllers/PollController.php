@@ -2053,7 +2053,7 @@ class PollController extends BaseController {
         if( $cnt ) {
 
             if( $poll['imageLink'] != 'null' && strlen( $poll['imageLink'] ) > 0 ) {
-                die('if');
+                
                 $pollImageUrl = url('storage/polls/'. $poll['imageLink']);
                 list( $pollWidth, $pollHeight ) = getimagesize( $pollImageUrl );
 
