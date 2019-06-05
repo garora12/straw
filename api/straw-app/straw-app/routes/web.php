@@ -192,6 +192,10 @@ $router->group(['middleware' => 'CorsMiddleware'], function($router) {
                     $router->get('/userNameExists', [
                         'uses' => 'UserController@isUserNameExists'
                     ]);
+
+                    $router->post('/logout', [
+                        'uses' => 'AuthController@logOut'
+                    ]);
                     
                     $router->get('/{id}', [
                         'uses' => 'UserController@getUserById'

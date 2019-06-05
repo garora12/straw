@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 use Validator;
 use App\User;
+use App\RelUserNotificationToken;
 use Firebase\JWT\JWT;
 use Illuminate\Http\Request;
 use Firebase\JWT\ExpiredException;
@@ -143,5 +144,28 @@ class AuthController extends BaseController {
             'error' => ['emailPassword' => 'Invalid Credentials.'],
             'errorArr' => ['Invalid Credentials.']
         ], 200);
+    }
+
+    public function logOut() {
+
+        $loggedInUser = $this->request->auth->id;
+        $result = RelUserNotificationToken::where( 'userId', $loggedInUser )->delete();
+        if( $result ) {
+
+            return response()->json([
+                'message' => 'Logged out successfully!',
+                'error' => [],
+                'errorArr' => [],
+                'data'  =>  [],
+            ], 200);
+        } else {
+
+            return response()->json([
+                'message' => 'Unable to logout!',
+                'error' => [ 'id' => 'Unable to logout!'],
+                'errorArr' => ['Unable to logout!'],
+                'data'  =>  [],
+            ], 200);
+        }
     }
 }

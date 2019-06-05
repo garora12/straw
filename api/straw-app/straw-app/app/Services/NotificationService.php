@@ -1,6 +1,7 @@
 <?php
 namespace App\Services;
 use App\RelUserNotificationToken;
+use App\User;
 use DB;
 use Log;
 
@@ -62,10 +63,19 @@ class NotificationService {
                     ->get();
     }
 
-    public function getAllDeviceTokens() {
+    public function getAllDeviceTokens( $userId = false ) {
 
         ini_set('max_execution_time', 0);
-        $result = RelUserNotificationToken::select('token')->get(); 
+
+        if( $userId != false ) {
+
+            $result = RelUserNotificationToken::select('token')->where([
+                ['userId', '!=', $userId]
+            ])->get(); 
+        } else {
+
+            $result = RelUserNotificationToken::select('token')->get(); 
+        }
         ini_set('max_execution_time', 300);
         return $result->toArray();
     }
@@ -84,6 +94,33 @@ class NotificationService {
                     ->leftJoin('rel_user_notification_tokens AS runt', 'poll.userId', '=', 'runt.userId')
                     ->leftJoin( 'users AS usr', 'poll.userId', '=', 'usr.id')
                     ->where( 'poll.id', '=', $pollId )
+                    ->select(
+                        'poll.id',
+                        'poll.userId AS userId',
+                        'poll.question',
+                        'poll.imageLink',
+                        'poll.allowComments',
+                        'poll.status',
+                        'uns.settings AS userNotificationSettings',
+                        'runt.token AS deviceToken',
+                        'usr.username AS pollCreatedBy'
+                    )
+                    ->get();
+        ini_set('max_execution_time', 300);
+        return $result;
+    }
+
+    public function getNewPollReceivedByPollIdExceptUser( $pollId, $userId ) {
+
+        ini_set('max_execution_time', 0);
+        $result = DB::table('polls AS poll')
+                    ->leftJoin('user_notification_settings AS uns', 'poll.userId', '=', 'uns.userId')
+                    ->leftJoin('rel_user_notification_tokens AS runt', 'poll.userId', '=', 'runt.userId')
+                    ->leftJoin( 'users AS usr', 'poll.userId', '=', 'usr.id')
+                    ->where( [
+                        // ['poll.id', '=', $pollId],
+                        ['runt.userId', '!=', $userId]
+                    ] )
                     ->select(
                         'poll.id',
                         'poll.userId AS userId',
@@ -331,15 +368,16 @@ class NotificationService {
 
     public function newPollReceived( $pollId, $poll ) {
 
-        $result = $this->getNewPollReceivedInsertedUserNotificationTokenSettingsByPollId( $pollId );
+        $result = $this->getNewPollReceivedByPollIdExceptUser( $pollId, $poll['userId'] );
         $cnt = count((array)$result);
         if( isset( $result[0] ) && $cnt ) {
             
             $notificationSettings = json_decode( $result[0]->userNotificationSettings);
             if( $notificationSettings->newPollReceived > 0 ) {
                 
+                $user = User::where( 'id', $poll['userId'] )->get()->first();
                 $data = [
-                    'title'	            =>	$result[0]->pollCreatedBy . ' created a new poll',
+                    'title'	            =>	$user['userName'] . ' created a new poll',
                     'body'	            =>	$poll['question'],
                     'icon'	            =>	'images/icon.png',
                     'image'	            =>	'user.png',
@@ -353,7 +391,7 @@ class NotificationService {
                     'notification'      =>  $data
                 ];
 
-                $out_data = $this->getAllDeviceTokens();
+                $out_data = $this->getAllDeviceTokens( $poll['userId'] );
                 if( count( $out_data ) ) {
 
                     $res = $this->sendPushNotification( $out_data, $msg );
