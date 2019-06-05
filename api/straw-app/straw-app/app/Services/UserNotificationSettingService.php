@@ -62,7 +62,12 @@ class UserNotificationSettingService {
             ];
             return [
                 'user' => $user,
-                'userNotificationSettings' => $userNotificationSettings
+                'userNotificationSettings' => [
+                    "newPollReceived" => (string)$userNotificationSettings->newPollReceived,
+                    "pollVoteReceived" => (string)$userNotificationSettings->pollVoteReceived,
+                    "pollCommentReceived" => (string)$userNotificationSettings->pollCommentReceived,
+                    "pollEnded" => (string)$userNotificationSettings->pollEnded
+                ]
             ];
         } else {
 
