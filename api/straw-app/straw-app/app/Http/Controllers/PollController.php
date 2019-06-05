@@ -1561,14 +1561,15 @@ class PollController extends BaseController {
 
         isset($data['offset']) ? $rules['offset']  = 'required|numeric|min:0' : '';
         isset($data['limit']) ? $rules['limit']  = 'required|numeric|min:1' : '';
-        isset($data['genders']) ? $rules['genders']  = 'required' : '';
-        isset($data['countryIds']) ? $rules['countryIds']  = 'required' : '';
-        isset($data['groupIds']) ? $rules['groupIds']  = 'required' : '';
-        isset($data['branchIds']) ? $rules['branchIds']  = 'required' : '';
+        
+        // isset($data['genders']) ? $rules['genders']  = 'required' : '';
+        // isset($data['countryIds']) ? $rules['countryIds']  = 'required' : '';
+        // isset($data['groupIds']) ? $rules['groupIds']  = 'required' : '';
+        // isset($data['branchIds']) ? $rules['branchIds']  = 'required' : '';
 
-        isset($data['poll']) ? $rules['poll']  = 'required' : '';
-        isset($data['people']) ? $rules['people']  = 'required' : '';
-        isset($data['tags']) ? $rules['tags']  = 'required' : '';
+        // isset($data['poll']) ? $rules['poll']  = 'required' : '';
+        // isset($data['people']) ? $rules['people']  = 'required' : '';
+        // isset($data['tags']) ? $rules['tags']  = 'required' : '';
 
         $validator = Validator::make( $data, $rules);
         if ( !$validator->passes()) {
@@ -1593,39 +1594,39 @@ class PollController extends BaseController {
             'userId'    =>  isset($this->loggedInUser->id) ? $this->loggedInUser->id : ''
         ];
 
-        isset( $data['poll'] ) ? $in_data['poll'] = $data['poll'] : '';
-        isset( $data['people'] ) ? $in_data['people'] = $data['people'] : '';
-        isset( $data['tags'] ) ? $in_data['tags'] = '#'. $data['tags'] : '';
+        isset( $data['poll'] ) && !empty( $data['poll'] ) ? $in_data['poll'] = $data['poll'] : '';
+        isset( $data['people'] ) && !empty( $data['people'] ) ? $in_data['people'] = $data['people'] : '';
+        isset( $data['tags'] ) && !empty( $data['tags'] ) ? $in_data['tags'] = '#'. $data['tags'] : '';
 
-        if( isset( $data['genders'] ) ) {
+        if( isset( $data['genders'] ) && !empty( $data['genders'] ) ) {
 
             $gendersArr = explode( ',', $data['genders'] );
             $in_data['genders'] = $gendersArr;
             $in_data['genders'][] = "0";
-        }
+        } 
 
-        if( isset( $data['years'] ) ) {
+        if( isset( $data['years'] ) && !empty( $data['years'] ) ) {
 
             $yearsArr = explode( ',', $data['years'] );
             $in_data['years'] = $yearsArr;
             $in_data['years'][] = "0";
         }
 
-        if( isset( $data['countryIds'] ) ) {
+        if( isset( $data['countryIds'] ) && !empty( $data['countryIds'] ) ) {
 
             $countryIdsArr = explode( ',', $data['countryIds'] );
             $in_data['countryIds'] = $countryIdsArr;
             $in_data['countryIds'][] = "0";
         }
 
-        if( isset( $data['groupIds'] ) ) {
+        if( isset( $data['groupIds'] ) && !empty( $data['groupIds'] ) ) {
 
             $groupIdsArr = explode( ',', $data['groupIds'] );
             $in_data['groupIds'] = $groupIdsArr;
             $in_data['groupIds'] = "0";
         }
 
-        if( isset( $data['branchIds'] ) ) {
+        if( isset( $data['branchIds'] ) && !empty( $data['branchIds'] ) ) {
 
             $branchIdsArr = explode( ',', $data['branchIds'] );
             $in_data['branchIds'] = $branchIdsArr;
