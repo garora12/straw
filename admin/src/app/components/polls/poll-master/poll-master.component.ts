@@ -759,7 +759,7 @@ export class PollMasterComponent implements OnInit {
     //   return value;
     // } );
 
-    tmpCountryIds.length == 246 ? tmpCountryIds = 'ALL' : tmpCountryIds = tmpCountryIds.join();
+    tmpCountryIds.length == 245 ? tmpCountryIds = 'ALL' : tmpCountryIds = tmpCountryIds.join();
     tmpGroupIdsArr.length == 33 ? groupIds = 'ALL' : groupIds = groupIds;
     tmpGenders.length == 4 ? tmpGenders = 'ALL' : tmpGenders = tmpGenders.join();
     tmpYears.length == 4 ? tmpYears = 'ALL' : tmpYears = tmpYears.join();
