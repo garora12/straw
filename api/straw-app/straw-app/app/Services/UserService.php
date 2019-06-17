@@ -199,6 +199,7 @@ class UserService {
                     ->leftJoin('rel_user_groups AS rug', 'usr.id', '=', 'rug.userId')
                     ->leftJoin('groups AS grp', 'rug.groupId', '=', 'grp.id')
                     ->leftJoin( 'user_notification_settings AS uns', 'usr.id', '=', 'uns.userId' )
+                    ->leftJoin( 'rel_user_notification_tokens AS runt', 'usr.id', '=', 'runt.userId' )
                     ->where( 'usr.id', '=', $userId )
                     ->select( 
                         'usr.id', 
@@ -219,7 +220,8 @@ class UserService {
                         'grp.parent_id AS groupParentId', 
                         'cntr.id AS countryId', 
                         'cntr.name AS countryName',
-                        'uns.settings AS settings'
+                        'uns.settings AS settings',
+                        'runt.token AS fcmNotificationToken'
                     )
                     ->get();
                     
@@ -236,6 +238,7 @@ class UserService {
                 "branchId" => $data->branchId,
                 "branchName" => $data->branchName,
                 "status" => $data->status,
+                "fcmNotificationToken" => $data->fcmNotificationToken,
                 "userNotificationSettings" => json_decode( $data->settings )
                 // "created_at" => $data->created_at,
                 // "updated_at" => $data->updated_at,
@@ -267,13 +270,25 @@ class UserService {
                 if( !in_array( $val->groupId, $selectedGroupIds ) ) {
                         
                     $rel_user_groups_id = $val->rel_user_groups_id;
-                    $selectedGroupIds[] = $val->groupId;
+                    if( !is_null( $val->groupId ) ) {
+                        $selectedGroupIds[] = $val->groupId;
+                    } 
                 }
             }
-    
+
+            /** to check if the selectedGroupIds are empty then all groups are selected */
+            $isGroupEmpty = false;
+
+            if( empty( $selectedGroupIds ) ) {
+                $isGroupEmpty = true;
+            } else {
+                $isGroupEmpty = false;                
+            }
+
             $groups = Group::all()->toArray();
             $parentsArr = [];
             $groupsArr = [];
+            $sessionGroupsIds = [];
 
             foreach( $result AS $key => $val ) {
     
@@ -310,6 +325,7 @@ class UserService {
                         $out_data['groups'][$i]['parentId'] = $v['parentId'];
                         $out_data['groups'][$i]['groupId'] = $v['groupId'];
                         $out_data['groups'][$i]['groupName'] = $v['groupName'];
+                        $sessionGroupsIds[] = $v['groupId'];
                         
                         if( isset( $v['children'] ) && is_array( $v['children'] ) ) {
     
@@ -320,6 +336,7 @@ class UserService {
                                     'groupId' => $cv['groupId'],
                                     'groupName' => $cv['groupName']
                                 ];
+                                $sessionGroupsIds[] = $cv['groupId'];
                             }
                         }
                         $i++;
@@ -341,12 +358,14 @@ class UserService {
                                     $out_data['groups'][$i]['parentId'] = $value['parent_id'];
                                     $out_data['groups'][$i]['groupId'] = $value['id'];
                                     $out_data['groups'][$i]['groupName'] = $value['name'];
+                                    $sessionGroupsIds[] = $value['id'];
 
                                     $out_data['groups'][$i]['children'][] = [
                                         'parentId' => $val['parent_id'], 
                                         'groupId' => $val['id'],
                                         'groupName' => $val['name']
                                     ];
+                                    $sessionGroupsIds[] = $val['id'];
                                 }
                             }        
                             $i++;
@@ -359,6 +378,17 @@ class UserService {
             }
 
             $out_data['countries'] = $rel_user_countries_id == 0 ? Country::select( 'id AS countryId', 'name AS countryName' )->get()->toArray() : $out_data['countries'];
+            $outGroups = [];
+            if( $isGroupEmpty ) {
+                $outGroups = Group::select( 'id AS groupId' )->get()->toArray();
+            } 
+            $out_data['filters'] = [
+                'genders' => $out_data['gender'],
+                'studyingYears' => $out_data['studyingYear'],
+                'branchIds' => $out_data['branchId'],
+                'countries' => isset( $out_data['countries'] ) && is_array( $out_data['countries'] ) ? array_column( $out_data['countries'], 'countryId' ) : '',
+                'groups' => $isGroupEmpty ? array_column( $outGroups, 'groupId' ) : $sessionGroupsIds
+            ];
             return $out_data;
         } else {
 

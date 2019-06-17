@@ -1,5 +1,7 @@
 <?php
 ini_set( 'display_errors', 1 ); error_reporting( E_ALL );
+define('SERVER_API_KEY', 'AIzaSyDMJqJA9h3QpXjH0cuINWSt3FslAOlUpbU');
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -253,6 +255,14 @@ $router->group(['middleware' => 'CorsMiddleware'], function($router) {
                     $router->get('/getLivePolls', [
                         'uses' => 'PollController@getLivePolls'
                     ]);
+
+                    $router->get('/getLivePollsAdmin', [
+                        'uses' => 'PollController@getLivePollsAdmin'
+                    ]);
+
+                    /* $router->get('/getLivePollsTest', [
+                        'uses' => 'PollController@getLivePollsTest'
+                    ]); */
 
                     $router->get('/getVotedPolls', [
                         'uses' => 'PollController@getVotedPolls'

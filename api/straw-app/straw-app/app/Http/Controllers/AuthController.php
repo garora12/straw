@@ -70,7 +70,7 @@ class AuthController extends BaseController {
             $flag = 1;
             $rules['userName'] = 'required';
         }
-        
+
         if( !$flag ) {
 
             return response()->json([
@@ -96,24 +96,25 @@ class AuthController extends BaseController {
                 'data'      =>      []
             ], 200);
         } 
-        
+
         $Userflag = '';
         // Find the user by email
         if( isset( $data['universityEmail'] ) ) {
 
             $Userflag = 'universityEmail';
             $user = User::where( [
-                ['universityEmail', $this->request->input('universityEmail')],
-                ['status', 'OPEN']
+                ['universityEmail', strtolower( $this->request->input('universityEmail') )],
+                // ['status', '!=', 'DELETED']
             ] )->first();
         } else {
 
             $Userflag = 'userName';
             $user = User::where([
-                ['userName', $this->request->input('userName')],
-                ['status', 'OPEN']
+                ['userName', strtolower( $this->request->input('userName') )],
+                // ['status', '!=', 'DELETED']                
             ] )->first();
         }
+        
         if (!$user) {
             // You wil probably have some sort of helpers or whatever
             // to make sure that you have the same response format for
@@ -126,6 +127,27 @@ class AuthController extends BaseController {
                 'data'  =>  []
             ], 200);
         }
+
+        if( $user->status == 'BLOCKED' ) {
+
+            return response()->json([
+                'message' => 'Some errors occured!',
+                'error' => [ 'userStatus' => 'Your account is blocked by the admin.'],
+                'errorArr'  => ['Your account is blocked by the admin.'],
+                'data'  =>  []
+            ], 200);
+        }
+
+        if( $user->status == 'DELETED' ) {
+
+            return response()->json([
+                'message' => 'Some errors occured!',
+                'error' => [ 'userStatus' => 'Your account is deleted.'],
+                'errorArr'  => ['Your account is deleted.'],
+                'data'  =>  []
+            ], 200);
+        }
+
         // Verify the password and generate the token
         if (Hash::check($this->request->input('password'), $user->password)) {
             return response()->json(
@@ -160,10 +182,17 @@ class AuthController extends BaseController {
             ], 200);
         } else {
 
-            return response()->json([
+            /* return response()->json([
                 'message' => 'Unable to logout!',
                 'error' => [ 'id' => 'Unable to logout!'],
                 'errorArr' => ['Unable to logout!'],
+                'data'  =>  [],
+            ], 200); */
+            
+            return response()->json([
+                'message' => 'Logged out successfully!',
+                'error' => [],
+                'errorArr' => [],
                 'data'  =>  [],
             ], 200);
         }

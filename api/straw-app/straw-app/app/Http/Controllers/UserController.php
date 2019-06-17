@@ -140,12 +140,13 @@ class UserController extends BaseController {
         } 
 
         $data['id'] = isset( $data['id'] ) ? intval( $data['id'] ) : false;
-        if( $this->userService->isUserNameExistsData( $data['userName'], $data['id'] ) ) {
+        $userName = strtolower( $data['userName'] );
+        if( $this->userService->isUserNameExistsData( $userName, $data['id'] ) ) {
 
             return response()->json([
                 'message'   =>      'Some errors occured',
-                'error'     =>      [ "userName" => "User name(". $data['userName'] .") exists already!"],
-                'errorArr'  =>      ["User name(". $data['userName'] .") exists already!"],
+                'error'     =>      [ "userName" => "User name(". $userName .") exists already!"],
+                'errorArr'  =>      ["User name(". $userName .") exists already!"],
                 'data'      =>      []
             ], 200);
         } else {
@@ -181,12 +182,13 @@ class UserController extends BaseController {
         } 
 
         $data['id'] = isset( $data['id'] ) ? intval( $data['id'] ) : false;
-        if( $this->userService->isEmailExistsData( $data['universityEmail'], $data['id'] ) ) {
+        $universityEmail = strtolower( $data['universityEmail'] );
+        if( $this->userService->isEmailExistsData( $universityEmail, $data['id'] ) ) {
 
             return response()->json([
                 'message'   =>      'Some errors occured',
-                'error'     =>      [ "universityEmail" => "University email(". $data['universityEmail'] .") exists already!"],
-                'errorArr'  =>      ["University email(". $data['universityEmail'] .") exists already!"],
+                'error'     =>      [ "universityEmail" => "University email(". $universityEmail .") exists already!"],
+                'errorArr'  =>      ["University email(". $universityEmail .") exists already!"],
                 'data'      =>      []
             ], 200);
         } else {
@@ -226,7 +228,7 @@ class UserController extends BaseController {
             ], 200);
         } 
 
-        $in_email = $data['universityEmail'];
+        /* $in_email = $data['universityEmail'];
         $in_emailArr = explode( '@', $in_email );
         $checkEmail = $in_emailArr[1];
         $allowedDomain = [
@@ -242,7 +244,7 @@ class UserController extends BaseController {
                 'errorArr'  =>      ["Email with ucl.ac.uk and co.uk is allowed!"],
                 'data'      =>      []
             ], 200);
-        }
+        } */
         
         $strGroupIds = $data['groupIds'];
         unset($data['groupIds']);
@@ -272,6 +274,7 @@ class UserController extends BaseController {
             ], 200);
         }
 
+        $data['userName'] = strtolower( $data['userName'] );
         if( $this->userService->isUserNameExistsData( $data['userName'] ) ) {
 
             return response()->json([
@@ -281,7 +284,8 @@ class UserController extends BaseController {
                 'data'      =>      []
             ], 200);
         }
-        
+
+        $data['universityEmail'] = strtolower( $data['universityEmail'] );        
         if( $this->userService->isEmailExistsData( $data['universityEmail'] ) ) {
 
             return response()->json([
@@ -328,7 +332,7 @@ class UserController extends BaseController {
                     'iss' => "lumen-jwt", // Issuer of the token
                     'sub' => $user->id, // Subject of the token
                     'iat' => time(), // Time when JWT was issued. 
-                    'exp' => time() + 60*60 // Expiration time
+                    'exp' => time() + 60*60*8760 // Expiration time
                 ];
                 
                 return response()->json([
@@ -388,7 +392,7 @@ class UserController extends BaseController {
             ], 200);
         } 
 
-        $in_email = $data['universityEmail'];
+        /* $in_email = $data['universityEmail'];
         $in_emailArr = explode( '@', $in_email );
         $checkEmail = $in_emailArr[1];
         $allowedDomain = [
@@ -404,7 +408,7 @@ class UserController extends BaseController {
                 'errorArr'  =>      ["Email with ucl.ac.uk and co.uk is allowed!"],
                 'data'      =>      []
             ], 200);
-        }
+        } */
 
         $strGroupIds = $data['groupIds'];
         unset($data['groupIds']);
@@ -458,6 +462,7 @@ class UserController extends BaseController {
             ], 200);
         }
 
+        $data['userName'] = strtolower( $data['userName'] );
         if( $this->userService->isUserNameExistsData( $data['userName'], $id ) ) {
 
             return response()->json([
@@ -468,6 +473,7 @@ class UserController extends BaseController {
             ], 200);
         }
         
+        $data['userName'] = strtolower( $data['userName'] );
         if( $this->userService->isEmailExistsData( $data['universityEmail'], $id ) ) {
 
             return response()->json([
@@ -489,12 +495,20 @@ class UserController extends BaseController {
                 $this->userService->insertUserGroups( $id, $groupIds );
                 $this->userService->insertUserCountries( $id, $countryIds );
 
+                /* $payload = [
+                    'iss' => "lumen-jwt", // Issuer of the token
+                    'sub' => $user->id, // Subject of the token
+                    'iat' => time(), // Time when JWT was issued. 
+                    'exp' => time() + 60*60*8760 // Expiration time
+                ]; */
+
                 return response()->json([
                     'message'   =>      'Record updated successfully.',
                     'error'     =>      [],
                     'errorArr'     =>      [],
                     'data'      =>      [
                         'user'     =>      $this->userService->getSignedInUserData( $user->id ),
+                        // 'token'     =>      JWT::encode($payload, env('JWT_SECRET'))
                     ]
                 ], 200);
             } else {
@@ -561,7 +575,7 @@ class UserController extends BaseController {
             ], 200);
         } 
 
-        if( isset($data['universityEmail']) ) {
+        /* if( isset($data['universityEmail']) ) {
 
             $in_email = $data['universityEmail'];
             $in_emailArr = explode( '@', $in_email );
@@ -580,7 +594,7 @@ class UserController extends BaseController {
                     'data'      =>      []
                 ], 200);
             }
-        }
+        } */
 
         if( isset($data['groupIds']) ) {
 
@@ -640,8 +654,9 @@ class UserController extends BaseController {
             ], 200);
         }
 
-        if( isset($data['userName']) && $this->userService->isUserNameExistsData( $data['userName'], $id ) ) {
+        if( isset($data['userName']) && $this->userService->isUserNameExistsData( strtolower( $data['userName'] ), $id ) ) {
 
+            $data['userName'] = strtolower( $data['userName'] );
             return response()->json([
                 'message'   =>      'Some errors occured',
                 'error'     =>      [ "userName" => "User name(". $data['userName'] .") exists already!"],
@@ -650,8 +665,9 @@ class UserController extends BaseController {
             ], 200);
         }
         
-        if( isset($data['universityEmail']) && $this->userService->isEmailExistsData( $data['universityEmail'], $id ) ) {
+        if( isset($data['universityEmail']) && $this->userService->isEmailExistsData( strtolower( $data['universityEmail'] ), $id ) ) {
 
+            $data['universityEmail'] = strtolower( $data['universityEmail'] );
             return response()->json([
                 'message'   =>      'Some errors occured',
                 'error'     =>      ["universityEmail" => "University email(". $data['universityEmail'] .") exists already!"],
@@ -662,8 +678,8 @@ class UserController extends BaseController {
 
         $in_data = [
             'id' => $oldUserData['id'],
-            'userName' => isset($data['userName']) ? $data['userName'] : $oldUserData['userName'],
-            'universityEmail' => isset($data['universityEmail']) ? $data['universityEmail'] : $oldUserData['universityEmail'],
+            'userName' => isset($data['userName']) ? $data['userName'] : strtolower( $oldUserData['userName'] ),
+            'universityEmail' => isset($data['universityEmail']) ? $data['universityEmail'] : strtolower( $oldUserData['universityEmail'] ),
             'password' => isset($data['password']) ? Hash::make($data['password']) : $oldUserData['password'],
             'gender' => isset($data['gender']) ? $data['gender'] : $oldUserData['gender'],
             'studyingYear' => isset($data['studyingYear']) ? $data['studyingYear'] : $oldUserData['studyingYear'],
@@ -681,12 +697,20 @@ class UserController extends BaseController {
                 isset( $groupIds ) ? $this->userService->insertUserGroups( $id, $groupIds ) : '';
                 isset( $countryIds ) ? $this->userService->insertUserCountries( $id, $countryIds ) : '';
                 
+                /* $payload = [
+                    'iss' => "lumen-jwt", // Issuer of the token
+                    'sub' => $user->id, // Subject of the token
+                    'iat' => time(), // Time when JWT was issued. 
+                    'exp' => time() + 60*60*8760 // Expiration time
+                ]; */
+
                 return response()->json([
                     'message'   =>      'Record updated successfully.',
                     'error'     =>      [],
                     'errorArr'     =>      [],
                     'data'      =>      [
-                        'user'     =>      $this->userService->getSignedInUserData( $user->id )
+                        'user'     =>      $this->userService->getSignedInUserData( $user->id ),
+                        // 'token'     =>      JWT::encode($payload, env('JWT_SECRET'))
                     ]
                 ], 200);
             } else {
@@ -771,8 +795,8 @@ class UserController extends BaseController {
 
         $in_data = [
             'id' => $oldUserData['id'],
-            'userName' => isset($data['userName']) ? $data['userName'] : $oldUserData['userName'],
-            'universityEmail' => isset($data['universityEmail']) ? $data['universityEmail'] : $oldUserData['universityEmail'],
+            'userName' => isset($data['userName']) ? $data['userName'] : strtolower( $oldUserData['userName'] ),
+            'universityEmail' => isset($data['universityEmail']) ? $data['universityEmail'] : strtolower( $oldUserData['universityEmail'] ),
             'password' => isset($data['password']) ? Hash::make($data['password']) : $oldUserData['password'],
             'gender' => isset($data['gender']) ? $data['gender'] : $oldUserData['gender'],
             'studyingYear' => isset($data['studyingYear']) ? $data['studyingYear'] : $oldUserData['studyingYear'],
@@ -859,8 +883,8 @@ class UserController extends BaseController {
 
         $in_data = [
             'id' => $oldUserData['id'],
-            'userName' => $oldUserData['userName'],
-            'universityEmail' => $oldUserData['universityEmail'],
+            'userName' => strtolower( $oldUserData['userName'] ),
+            'universityEmail' => strtolower( $oldUserData['universityEmail'] ),
             'password' => $oldUserData['password'],
             'gender' => $oldUserData['gender'],
             'studyingYear' => $oldUserData['studyingYear'],
@@ -944,8 +968,8 @@ class UserController extends BaseController {
 
         $in_data = [
             'id' => $oldUserData['id'],
-            'userName' => $oldUserData['userName'],
-            'universityEmail' => $oldUserData['universityEmail'],
+            'userName' => strtolower( $oldUserData['userName'] ),
+            'universityEmail' => strtolower( $oldUserData['universityEmail'] ),
             'password' => $oldUserData['password'],
             'gender' => $oldUserData['gender'],
             'studyingYear' => $oldUserData['studyingYear'],
@@ -1063,6 +1087,7 @@ class UserController extends BaseController {
             ], 200);
         } 
 
+        $data['universityEmail'] = strtolower( $data['universityEmail'] );
         if( !$this->userService->isEmailExistsData( $data['universityEmail'] ) ) {
 
             return response()->json([
@@ -1131,12 +1156,12 @@ class UserController extends BaseController {
             ], 200);
         } 
 
-        if( !$this->userService->isEmailExistsData( $decodedJson->universityEmail ) ) {
+        if( !$this->userService->isEmailExistsData( strtolower( $decodedJson->universityEmail ) ) ) {
 
             return response()->json([
                 'message'   =>      'Some errors occured',
-                'error'     =>      [ "universityEmail" => "University email(". $decodedJson->universityEmail .") does not exists!"],
-                'errorArr'     =>      ["University email(". $decodedJson->universityEmail .") does not exists!"],
+                'error'     =>      [ "universityEmail" => "University email(". strtolower( $decodedJson->universityEmail ) .") does not exists!"],
+                'errorArr'     =>      ["University email(". strtolower( $decodedJson->universityEmail ) .") does not exists!"],
                 'data'      =>      []
             ], 200);
         } 
@@ -1156,7 +1181,7 @@ class UserController extends BaseController {
             ], 200);
         }
 
-        return view('password.resetPasswordForm', [ 'email' => $decodedJson->universityEmail ]);
+        return view('password.resetPasswordForm', [ 'email' => strtolower( $decodedJson->universityEmail ) ]);
     }
 
     public function resetPassword() {
@@ -1180,6 +1205,7 @@ class UserController extends BaseController {
             ], 200);
         } 
 
+        $data['universityEmail'] = strtolower( $data['universityEmail'] );
         if( !$this->userService->isEmailExistsData( $data['universityEmail'] ) ) {
 
             return response()->json([

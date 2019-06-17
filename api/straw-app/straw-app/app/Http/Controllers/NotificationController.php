@@ -244,7 +244,8 @@ class NotificationController extends Controller
             'icon'	            =>	'images/icon.png',
             'image'	            =>	'user.png',
             'sound'             =>  'default',
-            'badge'             =>  '1'
+            'badge'             =>  '1',
+            'notificationFor'   => 'POLL_CREATED'
         ];
 
         $msg = [

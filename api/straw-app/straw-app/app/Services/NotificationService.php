@@ -69,12 +69,27 @@ class NotificationService {
 
         if( $userId != false ) {
 
-            $result = RelUserNotificationToken::select('token')->where([
-                ['userId', '!=', $userId]
-            ])->get(); 
+            // $result = RelUserNotificationToken::select('token')->where([
+            //     ['userId', '!=', $userId]
+            // ])->get(); 
+
+            $result = DB::table('rel_user_notification_tokens AS runt')
+                    ->leftJoin('user_notification_settings AS uns', 'runt.userId', '=', 'uns.userId')
+                    ->select( 'runt.token AS token', 'uns.settings AS settings' )
+                    ->where( [
+                        ['runt.userId', '!=', $userId]
+                    ] )
+                    ->get();
         } else {
 
-            $result = RelUserNotificationToken::select('token')->get(); 
+            // $result = RelUserNotificationToken::select('token')->get(); 
+            $result = DB::table('rel_user_notification_tokens AS runt')
+                    ->leftJoin('user_notification_settings AS uns', 'runt.userId', '=', 'uns.userId')
+                    ->select( 'runt.token AS token', 'uns.settings AS settings' )
+                    ->where( [
+                        ['userId', '!=', $userId]
+                    ] )
+                    ->get();
         }
         ini_set('max_execution_time', 300);
         return $result->toArray();
@@ -192,6 +207,7 @@ class NotificationService {
                     ->where([
                         // [ 'poll.published_at', '>=', $day_before ],
                         // [ 'poll.published_at', '<=', $currentDateTime ]
+
                         [ 'poll.published_at', '>=', $min_diff ],
                         [ 'poll.published_at', '<=', $oneDayBeforeTime ]
                     ])
@@ -225,7 +241,6 @@ class NotificationService {
 
     public function sendPushNotification( $outTokens, $msg ) {
 
-        define('SERVER_API_KEY', 'AIzaSyDMJqJA9h3QpXjH0cuINWSt3FslAOlUpbU');
         $tokens = [];
 
         if( count($outTokens) < 1 ) {
@@ -373,14 +388,20 @@ class NotificationService {
         if( isset( $result[0] ) && $cnt ) {
             
             $notificationSettings = json_decode( $result[0]->userNotificationSettings);
-            if( $notificationSettings->newPollReceived > 0 ) {
+            if( 
+                !empty( $notificationSettings ) && 
+                isset( $notificationSettings->newPollReceived ) && 
+                $notificationSettings->newPollReceived > 0  
+            ) {
                 
                 $user = User::where( 'id', $poll['userId'] )->get()->first();
                 $data = [
-                    'title'	            =>	$user['userName'] . ' created a new poll',
-                    'body'	            =>	$poll['question'],
-                    'icon'	            =>	'images/icon.png',
-                    'image'	            =>	'user.png',
+                    'title'	            =>	 "You've received a new Poll!",
+                    // 'title'	            =>	$user['userName'] . ' created a new poll',
+                    // 'title'	            =>	'Youâ€™ve been sent a Poll!',
+                    // 'body'	            =>	$poll['question'],
+                    // 'icon'	            =>	'images/icon.png',
+                    // 'image'	            =>	'user.png',
                     'sound'             =>  'default',
                     'badge'             =>  '1',
                     'notificationFor'   => 'POLL_CREATED'
@@ -394,7 +415,21 @@ class NotificationService {
                 $out_data = $this->getAllDeviceTokens( $poll['userId'] );
                 if( count( $out_data ) ) {
 
-                    $res = $this->sendPushNotification( $out_data, $msg );
+                    $tokens = [];
+                    foreach( $out_data AS $key => $val ) {
+
+                        $settings = json_decode( $val->settings );
+                        if( 
+                            !empty( $settings ) && 
+                            isset( $settings->newPollReceived ) && 
+                            $settings->newPollReceived > 0 
+                        ) {
+                           
+                            $tokens[]['token'] = $val->token;
+                        }
+                    }
+                    // $res = $this->sendPushNotification( $out_data, $msg );
+                    $res = $this->sendPushNotification( $tokens, $msg );
                     return $res;
                 } else {
                     return [
@@ -415,6 +450,60 @@ class NotificationService {
             ];
         }
     }
+
+    public function newPollSent( $loggedInUser ) {
+
+        $fcmNotificationToken  = isset( $loggedInUser->fcmNotificationToken ) && !empty( $loggedInUser->fcmNotificationToken ) ? $loggedInUser->fcmNotificationToken : '';
+        $userNotificationSettings = isset( $loggedInUser->userNotificationSettings ) && !empty( $loggedInUser->userNotificationSettings ) ? $loggedInUser->userNotificationSettings : '';
+        // print_r($userNotificationSettings); die;
+        // if( isset( $userNotificationSettings->newPollReceived ) ) {
+
+            // if( 
+            //     !empty( $notificationSettings ) && 
+            //     isset( $notificationSettings->newPollReceived ) && 
+            //     $notificationSettings->newPollReceived > 0  
+            // ) {
+            
+                $data = [
+                    'title'	            =>	'You’ve been sent a Poll!',
+                    // 'body'	            =>	$poll['question'],
+                    // 'icon'	            =>	'images/icon.png',
+                    // 'image'	            =>	'user.png',
+                    'sound'             =>  'default',
+                    'badge'             =>  '1',
+                    'notificationFor'   => 'POLL_SENT'
+                ];
+        
+                $msg = [
+                    'data'              =>  $data,
+                    'notification'      =>  $data
+                ];
+                
+                if( !empty( $fcmNotificationToken ) ) {
+                    
+                    $res = $this->sendPushNotification( [['token' => $fcmNotificationToken]], $msg );
+                    return $res;
+                } else {
+                    return [
+                        'err' => 1,
+                        'data' => 'Tokens not found.'
+                    ];
+                }
+    
+            // } else {
+            //     return [
+            //         'err' => 1,
+            //         'data' => 'Poll sent notification is restricted by user.'
+            //     ];
+            // }
+        // } else {
+
+        //     return [
+        //         'err' => 1,
+        //         'data' => 'New poll received setting is not set.'
+        //     ];
+        // }
+    }
     
     public function voteReceivedOnUserPoll( $pollId, $userId, $voteStatus ) {
 
@@ -423,15 +512,19 @@ class NotificationService {
         if( isset( $result[0] ) && $cnt ) {
 
             $notificationSettings = json_decode( $result[0]->userNotificationSettings);
-            if( $notificationSettings->pollVoteReceived > 0 ) {
+            if( 
+                !empty( $notificationSettings ) && 
+                isset( $notificationSettings->pollVoteReceived ) && 
+                $notificationSettings->pollVoteReceived > 0  
+            ) {
                 
                 $msgBody = $voteStatus == 'YES' ? 'upvoted' : 'downvoted';
 
                 $data = [
-                    'title'	            =>	'Vote received',
-                    'body'	            =>	$result[0]->pollVotedBy . ' is '. $msgBody .' your poll.',
-                    'icon'	            =>	'images/icon.png',
-                    'image'	            =>	'user.png',
+                    'title'	            =>	'Your Poll received its first vote',
+                    // 'body'	            =>	$result[0]->pollVotedBy . ' is '. $msgBody .' your poll.',
+                    // 'icon'	            =>	'images/icon.png',
+                    // 'image'	            =>	'user.png',
                     'sound'             =>  'default',
                     'badge'             =>  '1'
                 ];
@@ -465,14 +558,19 @@ class NotificationService {
         if( isset( $result[0] ) && $cnt ) {
             
             $notificationSettings = json_decode( $result[0]->userNotificationSettings);
-            if( $notificationSettings->pollCommentReceived > 0 ) {
+            if( 
+                !empty( $notificationSettings ) && 
+                isset( $notificationSettings->pollCommentReceived ) && 
+                $notificationSettings->pollCommentReceived > 0 
+            ) {
                 
                 $isLiked = $comment == 'YES' ? 'liked' : 'disliked';
                 $data = [
-                    'title'	            =>	$userName .' '. $isLiked .' your poll.',
+                    // 'title'	            =>	$userName .' '. $isLiked .' your poll.',
                     // 'body'	            =>	$comment,
-                    'icon'	            =>	'images/icon.png',
-                    'image'	            =>	'user.png',
+                    'title'	            =>	'Your Poll received a new comment',
+                    // 'icon'	            =>	'images/icon.png',
+                    // 'image'	            =>	'user.png',
                     'sound'             =>  'default',
                     'badge'             =>  '1'
                 ];
@@ -499,7 +597,7 @@ class NotificationService {
         }
     }
 
-    public function pollEnded() {
+    /* public function pollEndedOld() {
 
         ini_set('max_execution_time', 0);
         $result = $this->getPollEndedInsertedUserNotificationTokenSettings();
@@ -521,10 +619,10 @@ class NotificationService {
             if( count( $tokens ) > 0 ) {
 
                 $data = [
-                    'title'	            =>	        'Poll ended.',
-                    'body'	            =>	        'Your poll has been ended',
-                    'icon'	            =>	        'images/icon.png',
-                    'image'	            =>	        'user.png',
+                    'title'	            =>	        'Your Poll has ended',
+                    // 'body'	            =>	        'Your Poll has ended',
+                    // 'icon'	            =>	        'images/icon.png',
+                    // 'image'	            =>	        'user.png',
                     'sound'             =>          'default',
                     'badge'             =>          '1'
                 ];
@@ -534,11 +632,59 @@ class NotificationService {
                     'notification'      =>  $data
                 ];
 
-
                 $res = $this->sendPushNotification( $tokens, $msg );
                 ini_set('max_execution_time', 300);
                 return $res;
             }
+        } else {
+            ini_set('max_execution_time', 300);
+            return [
+                'err' => 1,
+                'date' => 'Settings not found.'
+            ];
+        }
+    } */
+
+    public function pollEnded() {
+
+        ini_set('max_execution_time', 0);
+        $result = $this->getPollEndedInsertedUserNotificationTokenSettings();
+        $cnt = count((array)$result);
+        if( isset( $result ) && $cnt ) {
+            
+            $tokens = [];
+            $res = [];
+            foreach( $result AS $key => $value ) {
+                                    
+                $notificationSettings = json_decode( $value->userNotificationSettings);
+                if( 
+                    !empty( $notificationSettings ) && 
+                    isset( $notificationSettings->pollEnded ) && 
+                    $notificationSettings->pollEnded > 0  
+                ) {
+
+                    $tokens[]['token'] = $value->deviceToken;
+
+                    $data = [
+                        'title'	            =>	        'Your Poll has ended',
+                        'body'	            =>	        $value->question,
+                        // 'icon'	            =>	        'images/icon.png',
+                        // 'image'	            =>	        'user.png',
+                        'sound'             =>          'default',
+                        'badge'             =>          '1'
+                    ];
+    
+                    $msg = [
+                        'data'              =>  $data,
+                        'notification'      =>  $data
+                    ];
+    
+                    $res[] = $this->sendPushNotification( $tokens, $msg );
+                }                
+            }
+
+            ini_set('max_execution_time', 300);
+            return $res;
         } else {
             ini_set('max_execution_time', 300);
             return [

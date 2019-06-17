@@ -16,6 +16,10 @@ use App\Services\NotificationService;
 use App\Services\UserPointsService;
 use App\Services\UserService;
 
+use App\Group;
+use App\Country;
+use App\Branch;
+
 class PollController extends BaseController {
 
     /**
@@ -357,7 +361,10 @@ class PollController extends BaseController {
                     'errorArr'  =>      [],
                     'data'      =>      [
                         'polls'     =>  $polls = $this->PollService->getInsertedPoll( $poll['id'] ),
-                        'notificationDetails' => $this->notificationService->newPollReceived( $poll['id'], $poll ),
+                        'notificationDetails' => [
+                            'sender'        =>      $this->notificationService->newPollSent( $this->loggedInUser ),
+                            'receivers'     =>      $this->notificationService->newPollReceived( $poll['id'], $poll )
+                        ],
                         'pollShareLink' => url() .'/poll/share/'. base64_encode( $poll['id'] )
                     ]
                 ], 200);
@@ -1331,6 +1338,17 @@ class PollController extends BaseController {
             ], 200);
         }
 
+        $poll = $this->PollService->isUserVotedForPoll( $this->loggedInUser->id, $data['pollId'] );
+        if( !$poll ) {
+
+            return response()->json([
+                'message' => 'You need to vote this poll first, if you want to comment on it!',
+                'error' => [ 'id' => 'You need to vote this poll first, if you want to comment on it!' ],
+                'errorArr' => [ 'You need to vote this poll first, if you want to comment on it!' ],
+                'data'  =>  [],
+            ], 200);
+        }
+
         $data['userId'] = $this->loggedInUser->id;
         $result = $this->PollService->insertUserPollComment( $data );
         if( $result->id > 0 ) {
@@ -1550,22 +1568,25 @@ class PollController extends BaseController {
             'message' => 'Records found!',
             'error' => [],
             'errorArr' => [],
-            'cnt' => $this->PollService->countLivePolls( $in_data )
-        ], 200);        
+            // 'cnt' => $this->PollService->countLivePolls( $in_data )
+            'cnt' => $this->PollService->countLivePollsAdminStats( $in_data )
+        ], 200);
     }
 
-    public function getLivePolls() {
+    // previous implemented, to match the poll preferences 
+    public function getLivePollsAdmin() {
 
         $data = $this->request->input();
         $rules = [];
 
         isset($data['offset']) ? $rules['offset']  = 'required|numeric|min:0' : '';
         isset($data['limit']) ? $rules['limit']  = 'required|numeric|min:1' : '';
-        
+
         // isset($data['genders']) ? $rules['genders']  = 'required' : '';
         // isset($data['countryIds']) ? $rules['countryIds']  = 'required' : '';
         // isset($data['groupIds']) ? $rules['groupIds']  = 'required' : '';
         // isset($data['branchIds']) ? $rules['branchIds']  = 'required' : '';
+        // isset($data['years']) ? $rules['years']  = 'required' : '';
 
         // isset($data['poll']) ? $rules['poll']  = 'required' : '';
         // isset($data['people']) ? $rules['people']  = 'required' : '';
@@ -1587,11 +1608,12 @@ class PollController extends BaseController {
         $day_before = date( 'Y-m-d h:i:s', strtotime( $currentDateTime . ' -1 day' ) );
 
         $in_data = [
-            'day_before' => $day_before,
-            'offset'    =>  isset($data['offset']) ? $data['offset'] : 0,
-            'limit'     =>  isset($data['limit']) ? $data['limit'] : 10,
-            'search'    =>  isset($data['search']) ? $data['search'] : '',
-            'userId'    =>  isset($this->loggedInUser->id) ? $this->loggedInUser->id : ''
+            'day_before'        =>  $day_before,
+            'offset'            =>  isset($data['offset']) ? $data['offset'] : 0,
+            'limit'             =>  isset($data['limit']) ? $data['limit'] : 10,
+            'search'            =>  isset($data['search']) ? $data['search'] : '',
+            'userId'            =>  isset($this->loggedInUser->id) ? $this->loggedInUser->id : '',
+            'userSignUpFilters' =>  $this->loggedInUser->filters
         ];
 
         isset( $data['poll'] ) && !empty( $data['poll'] ) ? $in_data['poll'] = $data['poll'] : '';
@@ -1633,6 +1655,183 @@ class PollController extends BaseController {
             $in_data['branchIds'][] = "0";
         }
 
+        $cnt = $this->PollService->countLivePollsAdminStats( $in_data );
+        if( $cnt > 0 ) {
+            
+            return response()->json([
+                'message' => 'Records found!',
+                'error' => [],
+                'errorArr' => [],
+                'data'  =>  [
+                    'totalPolls' => $cnt,
+                    'polls' => $this->PollService->getLivePollsAdmin( $in_data )
+                ],
+            ], 200);
+        } else {
+
+            return response()->json([
+                'message' => 'Record not found!',
+                'error' => [],
+                'errorArr' => ['Record not found!'],
+                'data'  =>  [],
+            ], 200);
+        }
+    } 
+    
+    // with client suggestion to match the poll preferences with receiver and receiver preferences with poll creators profile
+    // public function getLivePollsTest() {
+    public function getLivePolls() {
+
+        $data = $this->request->input();
+        
+        $countries = Country::select( 'id AS countryId' )->orderBy( 'id' )->get()->toArray();
+        $countryIds = isset( $countries ) && is_array( $countries ) ? array_column( $countries, 'countryId' ) : '';
+        array_push( $countryIds, "0" );
+
+        $groups = Group::select( 'id AS groupId' )->orderBy( 'id' )->get()->toArray();
+        $groupIds = isset( $groups ) && is_array( $groups ) ? array_column( $groups, 'groupId' ) : '';
+        array_push( $groupIds, "0" );
+
+        $branch = Branch::select( 'id AS branchId' )->orderBy( 'id' )->get()->toArray();
+        $branchIds = isset( $branch ) && is_array( $branch ) ? array_column( $branch, 'branchId' ) : '';
+        array_push( $branchIds, "0" );
+
+        $rules = [];
+
+        isset($data['offset']) ? $rules['offset']  = 'required|numeric|min:0' : '';
+        isset($data['limit']) ? $rules['limit']  = 'required|numeric|min:1' : '';
+
+        // isset($data['genders']) ? $rules['genders']  = 'required' : '';
+        // isset($data['countryIds']) ? $rules['countryIds']  = 'required' : '';
+        // isset($data['groupIds']) ? $rules['groupIds']  = 'required' : '';
+        // isset($data['branchIds']) ? $rules['branchIds']  = 'required' : '';
+        // isset($data['years']) ? $rules['years']  = 'required' : '';
+
+        // isset($data['poll']) ? $rules['poll']  = 'required' : '';
+        // isset($data['people']) ? $rules['people']  = 'required' : '';
+        // isset($data['tags']) ? $rules['tags']  = 'required' : '';
+
+        $validator = Validator::make( $data, $rules);
+        if ( !$validator->passes()) {
+
+            // TODO Handle your error
+            return response()->json([
+                'message'   =>      'Some errors occured',
+                'error'     =>      $validator->errors(),
+                'errorArr'  =>      $validator->errors()->all(),
+                'data'      =>      []
+            ], 200);
+        }
+
+        $currentDateTime = date("Y-m-d h:i:s");
+        $day_before = date( 'Y-m-d h:i:s', strtotime( $currentDateTime . ' -1 day' ) );
+        
+        $in_data = [
+            'day_before'        =>  $day_before,
+            'offset'            =>  isset($data['offset']) ? $data['offset'] : 0,
+            'limit'             =>  isset($data['limit']) ? $data['limit'] : 10,
+            'search'            =>  isset($data['search']) ? $data['search'] : '',
+            'userId'            =>  isset($this->loggedInUser->id) ? $this->loggedInUser->id : ''
+        ];
+
+        /* logged in user signup(profile) (logged in user default filters at signup time) filters starts here */
+        $userSignUpFilters =  $this->loggedInUser->filters;
+        
+        isset( $userSignUpFilters['genders'] ) && !empty( $userSignUpFilters['genders'] ) ? $in_data['userSignUpFilters']['genders'] = [$userSignUpFilters['genders']] : '';
+        isset( $userSignUpFilters['studyingYears'] ) && !empty( $userSignUpFilters['studyingYears'] ) ? $in_data['userSignUpFilters']['years'] = $userSignUpFilters['studyingYears'] : '';
+        isset( $userSignUpFilters['branchIds'] ) && !empty( $userSignUpFilters['branchIds'] ) ? $in_data['userSignUpFilters']['branchIds'] = $userSignUpFilters['branchIds'] : '';
+
+        if( isset( $userSignUpFilters['countries'] ) && !empty( $userSignUpFilters['countries'] ) && is_array( $userSignUpFilters['countries'] ) ) {
+            $UserCountries = $userSignUpFilters['countries'];
+            // array_push( $UserCountries, '0' );
+            $in_data['userSignUpFilters']['countries'] = $UserCountries;
+        } else {
+            // $in_data['userSignUpFilters']['countries'] =  $countryIds;
+            $in_data['userSignUpFilters']['countries'] =  ['0'];
+        }
+
+        if( isset( $userSignUpFilters['groups'] ) && !empty( $userSignUpFilters['groups'] ) && is_array( $userSignUpFilters['groups'] ) ) {
+            $UserGroups = $userSignUpFilters['groups'];
+            // array_push( $UserGroups, '0' );
+            $in_data['userSignUpFilters']['groups'] = $UserGroups;
+        } else {
+            // $in_data['userSignUpFilters']['groups'] =  $groupIds;
+            $in_data['userSignUpFilters']['groups'] = ['0'];
+        }
+        /* logged in user signup(profile) filters ends here */
+
+        /* logged In user poll search(custom applied) filters starts here */
+        isset( $data['poll'] ) && !empty( $data['poll'] ) ? $in_data['poll'] = $data['poll'] : '';
+        isset( $data['people'] ) && !empty( $data['people'] ) ? $in_data['people'] = $data['people'] : '';
+        isset( $data['tags'] ) && !empty( $data['tags'] ) ? $in_data['tags'] = '#'. $data['tags'] : '';
+
+        if( isset( $data['genders'] ) && !empty( $data['genders'] ) ) {
+
+            $gendersArr = explode( ',', $data['genders'] );
+            if( $gendersArr[0] == 'ALL' ) {
+
+                $in_data['genders'][] = '0';
+            } else {
+
+                $in_data['genders'] = $gendersArr;
+                $in_data['genders'][] = '0';
+            }
+        } 
+
+        if( isset( $data['years'] ) && !empty( $data['years'] ) ) {
+
+            $yearsArr = explode( ',', $data['years'] );
+            if( $yearsArr[0] == 'ALL' ) {
+
+                $in_data['years'][] = '0';
+            } else {
+
+                $in_data['years'] = $yearsArr;
+                $in_data['years'][] = '0';
+            }
+        }
+
+        if( isset( $data['countryIds'] ) && !empty( $data['countryIds'] ) ) {
+
+            $countryIdsArr = explode( ',', $data['countryIds'] );
+            if( $countryIdsArr[0] == 'ALL' ) {
+
+                $in_data['countryIds'][] = 0;
+            } else {
+
+                $in_data['countryIds'] = $countryIdsArr;
+                // $in_data['countryIds'][] = 0;
+            }
+        }
+
+        if( isset( $data['groupIds'] ) && !empty( $data['groupIds'] ) ) {
+
+            $groupIdsArr = explode( ',', $data['groupIds'] );
+            if( $groupIdsArr[0] == 'ALL' ) {
+
+                $in_data['groupIds'][] = 0;
+            } else {
+
+                $in_data['groupIds'] = $groupIdsArr;
+                // $in_data['groupIds'][] = 0;
+            }
+        }
+
+        if( isset( $data['branchIds'] ) && !empty( $data['branchIds'] ) ) {
+
+            $branchIdsArr = explode( ',', $data['branchIds'] );
+            if( $branchIdsArr[0] == 'ALL' ) {
+
+                $in_data['branchIds'][] = 0;
+            } else {
+
+                $in_data['branchIds'] = $branchIdsArr;
+                // $in_data['branchIds'][] = 0;
+            }
+        }
+        /* logged In user poll search(custom applied) filters ends here */
+
+        // $cnt = $this->PollService->countLivePollsTest( $in_data );
         $cnt = $this->PollService->countLivePolls( $in_data );
         if( $cnt > 0 ) {
             
@@ -1642,6 +1841,7 @@ class PollController extends BaseController {
                 'errorArr' => [],
                 'data'  =>  [
                     'totalPolls' => $cnt,
+                    // 'polls' => $this->PollService->getLivePollsTest( $in_data )
                     'polls' => $this->PollService->getLivePolls( $in_data )
                 ],
             ], 200);
@@ -1911,14 +2111,14 @@ class PollController extends BaseController {
         $result = $this->PollService->insertCommentLikeDislike( $data );
         if( $result->id > 0 ) {
             
-            $pollCreatedBy = $this->PollService->getPollByIdData( $data['pollId'] );
-            $userDetails = $this->userService->getUserByIdData( $data['userId'] );
+            // $pollCreatedBy = $this->PollService->getPollByIdData( $data['pollId'] );
+            // $userDetails = $this->userService->getUserByIdData( $data['userId'] );
             return response()->json([
                 'message'   =>      'Record saved successfully.',
                 'error'     =>      [],
                 'errorArr'  =>      [],
                 'data'      =>      $result,
-                'notificationDetails' => $this->notificationService->commentReceivedOnUserPoll( $data['pollId'], $pollCreatedBy['userId'], $data['value'], $userDetails->userName )
+                // 'notificationDetails' => $this->notificationService->commentReceivedOnUserPoll( $data['pollId'], $pollCreatedBy['userId'], $data['value'], $userDetails->userName )
             ], 200);
         } else {
 

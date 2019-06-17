@@ -14,15 +14,25 @@ use App\Country;
 use App\Branch;
 use App\RelUserPoints;
 use DB;
+use Log;
 
-use App\Services\UserPointsService;
+use Illuminate\Http\Request;
+
+use App\Services\ConstantService;
 
 use Illuminate\Database\QueryException;
 
 class PollService {
 
-    public function __construct() {
+    private $request;
+    private $loggedInUser;
+
+    public function __construct( Request $request, ConstantService $ConstantService ) {
         DB::enableQueryLog();
+
+        $this->request = $request;
+        $this->loggedInUser = $this->request->auth;
+        $this->constantService = $ConstantService;
     }
 
     public function getAllPollsDataCount( $in_data ) {
@@ -299,12 +309,13 @@ class PollService {
     public function insertPollGroups( $pollId, $groupsId ) {
 
         $in_data = [];
+        $flagAll = false;
 
         $result = $this->deletePollGroups( $pollId );
         foreach( $groupsId AS $key => $val ) {
 
             if( $val == 'ALL' ) {
-
+                $flagAll = true;
                 $in_data[] = [
                     'pollId'    =>  $pollId,
                     'groupId'   =>  0,
@@ -326,6 +337,15 @@ class PollService {
                 }
             }
         }
+
+        // if( !$flagAll ) {
+        //     $in_data[] = [
+        //         'pollId'    =>  $pollId,
+        //         'groupId'   =>  0,
+        //         'created_at'=>date('Y-m-d H:i:s'),
+        //         'updated_at'=> date('Y-m-d H:i:s')
+        //     ];
+        // }
 
         $data = RelPollGroup::insert( $in_data );
         return $data;
@@ -550,12 +570,13 @@ class PollService {
     public function insertPollGenders( $pollId, $genders ) {
 
         $in_data = [];
+        $flagAll = false;
 
         $result = $this->deletePollGenders( $pollId );
         foreach( $genders AS $key => $val ) {
 
             if( $val == 'ALL' ) {
-
+                $flagAll = true;
                 /*$in_data = [
                     [
                         'pollId'    =>  $pollId,
@@ -599,6 +620,14 @@ class PollService {
             }
         }
 
+        // if( !$flagAll ) {
+        //     $in_data[] = [
+        //         'pollId'    =>  $pollId,
+        //         'gender'   =>  "0",
+        //         'created_at'=>date('Y-m-d H:i:s'),
+        //         'updated_at'=> date('Y-m-d H:i:s')
+        //     ];
+        // }
         $data = RelPollGender::insert( $in_data );
         return $data;
     }
@@ -612,12 +641,13 @@ class PollService {
     public function insertPollYears( $pollId, $years ) {
 
         $in_data = [];
+        $flagAll = false;
 
         $result = $this->deletePollYears( $pollId );
         foreach( $years AS $key => $val ) {
 
             if( $val == 'ALL' ) {
-
+                $flagAll = true;
                 /*$in_data = [
                     [
                         'pollId'    =>  $pollId,
@@ -665,6 +695,14 @@ class PollService {
             }
         }
 
+        // if( !$flagAll ) {
+        //     $in_data[] = [
+        //         'pollId'    =>  $pollId,
+        //         'year'   =>  0,
+        //         'created_at'=>date('Y-m-d H:i:s'),
+        //         'updated_at'=> date('Y-m-d H:i:s')
+        //     ];
+        // }
         $data = RelPollYear::insert( $in_data );
         return $data;
     }
@@ -678,11 +716,13 @@ class PollService {
     public function insertPollCountries( $pollId, $countries ) {
 
         $in_data = [];
+        $flagAll = false;
         $result = $this->deletePollCountries( $pollId );
         foreach( $countries AS $key => $val ) {
 
             if( $val == 'ALL' ) {
 
+                $flagAll = true;
                 /*$countries = Country::all('id')->toArray();
                 foreach( $countries AS $k => $v ) {
                     $in_data[] = [
@@ -702,7 +742,7 @@ class PollService {
             } else {
 
                 $in_val = intval($val);
-                if( $in_val > 0 && $in_val < 5 ) {
+                if( $in_val > 0 ) {
 
                     $in_data[] = [
                         'pollId'    =>  $pollId,
@@ -714,6 +754,15 @@ class PollService {
             }
         }
 
+        // if( !$flagAll ) {
+        //     $in_data[] = [
+        //         'pollId'    =>  $pollId,
+        //         'countryId'   =>  0,
+        //         'created_at'=>date('Y-m-d H:i:s'),
+        //         'updated_at'=> date('Y-m-d H:i:s')
+        //     ];
+        // }
+        
         $data = RelPollCountries::insert( $in_data );
         return $data;
     }
@@ -727,11 +776,12 @@ class PollService {
     public function insertPollBranches( $pollId, $branches ) {
 
         $in_data = [];
+        $flagAll = false;
         $result = $this->deletePollBranches( $pollId );
         foreach( $branches AS $key => $val ) {
 
             if( $val == 'ALL' ) {
-
+                $flagAll = true;
                 /*$countries = RelPollBranches::all('id')->toArray();
                 foreach( $countries AS $k => $v ) {
                     $in_data[] = [
@@ -762,6 +812,14 @@ class PollService {
                 }
             }
         }
+        // if( !$flagAll ) {
+        //     $in_data[] = [
+        //         'pollId'    =>  $pollId,
+        //         'branchId'   =>  0,
+        //         'created_at'=>date('Y-m-d H:i:s'),
+        //         'updated_at'=> date('Y-m-d H:i:s')
+        //     ];
+        // }
 
         $data = RelPollBranches::insert( $in_data );
         return $data;
@@ -1609,13 +1667,11 @@ class PollService {
 
     public function getPollCommentsByPollId( $in_data ) {
 
-        $out_data = [
+        return $out_data = [
             'poll' => $this->getPollDetailsByPollId( $in_data['pollId'] ),
             'votes' => $pollVotes = $this->getPollVotesByPollId( $in_data['pollId'] ),
             'likedComments' => $likedComments = $this->getLikedCommentsByLoggedInUser( $in_data['loggedInUserId'] ),
-            'comments' => $this->getPollCommentsByPollIds( $in_data, $pollVotes, $likedComments ),
-            'mostLikedCommentId' => 0,
-            'mostLikedCommentDetails' => []
+            'comments' => $this->getPollCommentsByPollIds( $in_data, $pollVotes, $likedComments )
         ];
 
         if( $in_data['offset'] == 0 ) {
@@ -1934,7 +1990,7 @@ class PollService {
         return $out_data;
     }
 
-    public function countLivePolls( $in_data ) {
+    public function countLivePollsAdminStats( $in_data ) {
         
         $where = [
             ['poll.userId', '!=', $in_data['userId']],
@@ -1944,12 +2000,20 @@ class PollService {
 
         $result = DB::table( 'polls AS poll' )
                 ->leftJoin( 'users AS usr', 'poll.userId', '=', 'usr.id' )
+
+                // joins with poll creator(user)
+                ->leftJoin( 'rel_user_countries AS ruc', 'usr.id', '=', 'ruc.userId' )                
+                ->leftJoin( 'rel_user_groups AS rug', 'usr.id', '=', 'rug.userId' )
+
+                // joins with polls itself
                 ->leftJoin( 'rel_poll_comments AS rpc', 'poll.id', '=', 'rpc.pollId' )
                 ->leftJoin( 'rel_poll_genders AS rpg', 'poll.id', '=', 'rpg.pollId' )
                 ->leftJoin( 'rel_poll_years AS yrs', 'poll.id', '=', 'yrs.pollId' )
-                ->leftJoin( 'rel_poll_countries AS rpcntr', 'poll.id', '=', 'rpcntr.pollId' )
+                ->leftJoin( 'rel_poll_countries AS rpcntr', 'poll.id', '=', 'rpcntr.pollId' )                
                 ->leftJoin( 'rel_poll_groups AS rpgrp', 'poll.id', '=', 'rpgrp.pollId' )
                 ->leftJoin( 'rel_poll_branches AS rpb', 'poll.id', '=', 'rpb.pollId' )
+                
+                /* get those polls which are not created by logged in user */
                 ->whereNotIn('poll.id', function ($query) use( $in_data ) {
                     $query->select('pollId')->distinct()->from('rel_poll_votes')->where( 'userId', $in_data['userId'] );
                 })
@@ -1976,6 +2040,7 @@ class PollService {
         
         $result = $result->where( $where );
         
+        /* custom filters starts here */
         isset( $in_data['poll'] ) && !empty( $in_data['poll'] ) ? $result = $result->where( 'poll.question', 'LIKE', '%'. $in_data['poll'] .'%' ) : '';
         isset( $in_data['tags'] ) && !empty( $in_data['tags'] ) ? $result = $result->where( 'poll.question', 'LIKE', '%'. $in_data['tags'] .'%' ) : '' ;
         isset( $in_data['people'] ) && !empty( $in_data['people'] ) ? $result = $result->where( 'usr.userName', 'LIKE', '%'. $in_data['people'] .'%' ) : '';
@@ -1987,17 +2052,20 @@ class PollService {
                         ->orWhere( 'usr.userName', 'LIKE', '%'. $in_data['search'] .'%' );
         }
 
-        isset( $in_data['genders'] ) && is_array( $in_data['genders'] ) ? $result = $result->whereIn( 'rpg.gender', $in_data['genders'] ) : '';
-        isset( $in_data['years'] ) && is_array( $in_data['years'] ) ? $result = $result->whereIn( 'yrs.year', $in_data['years'] ) : '';
-        isset( $in_data['countryIds'] ) && is_array( $in_data['countryIds'] ) ? $result = $result->whereIn( 'rpcntr.countryId', $in_data['countryIds'] ) : '';
-        isset( $in_data['groupIds'] ) && is_array( $in_data['groupIds'] ) ? $result = $result->whereIn( 'rpgrp.groupId', $in_data['groupIds'] ) : '';
-        isset( $in_data['branchIds'] ) && is_array( $in_data['branchIds'] ) ? $result = $result->whereIn( 'rpb.branchId', $in_data['branchIds'] ) : '';
+        /* SECOND STEP MATCH LOGGED IN USER APPLIED CUSTOM FILTERS WITH THE POLL CREATOR */
+        isset( $in_data['genders'] ) && is_array( $in_data['genders'] ) ? $result = $result->whereIn( 'usr.gender', $in_data['genders'] ) : '';
+        isset( $in_data['years'] ) && is_array( $in_data['years'] ) ? $result = $result->whereIn( 'usr.studyingYear', $in_data['years'] ) : '';
+        isset( $in_data['countryIds'] ) && is_array( $in_data['countryIds'] ) ? $result = $result->whereIn( 'ruc.countryId', $in_data['countryIds'] ) : '';
+        isset( $in_data['groupIds'] ) && is_array( $in_data['groupIds'] ) ? $result = $result->whereIn( 'rug.groupId', $in_data['groupIds'] ) : '';
+        isset( $in_data['branchIds'] ) && is_array( $in_data['branchIds'] ) ? $result = $result->whereIn( 'usr.branchId', $in_data['branchIds'] ) : '';
+        // /* custom filters ends here */
 
         $result = $result->get();
         return $result->count();
     }
 
-    public function getLivePolls( $in_data ) {
+    // OLD
+    public function getLivePollsAdmin( $in_data ) {
 
         $where = [
             ['poll.userId', '!=', $in_data['userId']],
@@ -2040,7 +2108,6 @@ class PollService {
         
         $result = $result->where( $where );
         
-        /* filters starts here */
         isset( $in_data['poll'] ) && !empty( $in_data['poll'] ) ? $result = $result->where( 'poll.question', 'LIKE', '%'. $in_data['poll'] .'%' ) : '';
         isset( $in_data['tags'] ) && !empty( $in_data['tags'] ) ? $result = $result->where( 'poll.question', 'LIKE', '%'. $in_data['tags'] .'%' ) : '' ;
         isset( $in_data['people'] ) && !empty( $in_data['people'] ) ? $result = $result->where( 'usr.userName', 'LIKE', '%'. $in_data['people'] .'%' ) : '';
@@ -2057,9 +2124,281 @@ class PollService {
         isset( $in_data['countryIds'] ) && is_array( $in_data['countryIds'] ) ? $result = $result->whereIn( 'rpcntr.countryId', $in_data['countryIds'] ) : '';
         isset( $in_data['groupIds'] ) && is_array( $in_data['groupIds'] ) ? $result = $result->whereIn( 'rpgrp.groupId', $in_data['groupIds'] ) : '';
         isset( $in_data['branchIds'] ) && is_array( $in_data['branchIds'] ) ? $result = $result->whereIn( 'rpb.branchId', $in_data['branchIds'] ) : '';
-        /* filters ends here */
-
+        
         $result = $result->get(); 
+
+        if( $result ) {
+
+            $out_data = [];
+            foreach( $result AS $key => $val ) {
+                
+                $tmp = $val;
+                $tmp->pollId = $val->pollId;
+                $tmp->question = $val->question;
+
+                $tmp->pollImageLink = $val->pollImageLink;
+                $tmp->userImageLink = $val->userImageLink;
+
+                $tmp->allowComments = $val->allowComments;
+                $tmp->published_at = $val->published_at;
+                $tmp->userId = $val->userId;
+                $tmp->userName = $val->userName;
+                $tmp->totalComments = $val->totalComments;
+
+                if( $val->pollImageLink != 'null' && strlen( $val->pollImageLink ) > 0 ) {
+
+                    $pollImageUrl = url('storage/polls/'. $val->pollImageLink);
+                    list( $pollWidth, $pollHeight ) = getimagesize( $pollImageUrl );
+
+                    $tmp->pollImageDetails = [
+                        'relativePath' => $pollImageUrl,
+                        'width' => $pollWidth,
+                        'height' => $pollHeight
+                    ];
+                }
+
+                if( $val->userImageLink != 'null' && strlen( $val->userImageLink ) > 0 ) {
+
+                    $userImageUrl = url('storage/'. $val->userImageLink);
+                    list( $userWidth, $userHeight ) = getimagesize( $userImageUrl );             
+
+                    $tmp->userImageDetails = [
+                        'relativePath' => url('storage/'. $val->userImageLink),
+                        'width' => $userWidth,
+                        'height' => $userHeight
+                    ];
+                }
+            }
+        }
+        return $result;
+    }
+
+    // with client suggestion to match the poll preferences with receiver and receiver preferences with poll creators profile
+    public function countLivePolls( $in_data ) {
+        
+        $where = [
+            ['poll.userId', '!=', $in_data['userId']],
+            ['poll.published_at', '>=', $in_data['day_before']],
+            ['poll.status', '=', 'OPEN']
+        ];
+
+        $result = DB::table( 'polls AS poll' )
+                ->leftJoin( 'users AS usr', 'poll.userId', '=', 'usr.id' )
+
+                // joins with poll creator(user)
+                ->leftJoin( 'rel_user_countries AS ruc', 'usr.id', '=', 'ruc.userId' )                
+                ->leftJoin( 'rel_user_groups AS rug', 'usr.id', '=', 'rug.userId' )
+
+                // joins with polls itself
+                ->leftJoin( 'rel_poll_comments AS rpc', 'poll.id', '=', 'rpc.pollId' )
+                ->leftJoin( 'rel_poll_genders AS rpg', 'poll.id', '=', 'rpg.pollId' )
+                ->leftJoin( 'rel_poll_years AS yrs', 'poll.id', '=', 'yrs.pollId' )
+                ->leftJoin( 'rel_poll_countries AS rpcntr', 'poll.id', '=', 'rpcntr.pollId' )                
+                ->leftJoin( 'rel_poll_groups AS rpgrp', 'poll.id', '=', 'rpgrp.pollId' )
+                ->leftJoin( 'rel_poll_branches AS rpb', 'poll.id', '=', 'rpb.pollId' )
+                
+                /* get those polls which are not created by logged in user */
+                ->whereNotIn('poll.id', function ($query) use( $in_data ) {
+                    $query->select('pollId')->distinct()->from('rel_poll_votes')->where( 'userId', $in_data['userId'] );
+                })
+                ->select(
+                    'poll.id AS pollId',
+                    'poll.question AS question',
+                    'poll.imageLink AS pollImageLink',
+                    'poll.allowComments AS allowComments',
+                    'poll.published_at AS published_at',
+                    'usr.id AS userId',
+                    'usr.userName AS userName',
+                    'usr.imageLink AS userImageLink',
+                    DB::raw('COUNT(rpc.id) AS totalComments')
+                )->groupBy(
+                    'poll.id',
+                    'poll.question',
+                    'poll.imageLink',
+                    'poll.allowComments',
+                    'poll.published_at',
+                    'usr.id',
+                    'usr.userName',
+                    'usr.imageLink'
+                )->orderBy('poll.id', 'desc');
+        
+        $result = $result->where( $where );
+        
+        /** user preferences would not be applicable on special usernames starts here */   
+        $usrnm = strtolower( $this->loggedInUser->userName );
+        $specialUserNames = $this->constantService->getSpecialUserNames();
+        if( !in_array( $usrnm, $specialUserNames ) ) {
+
+            /* FIRST STEP MATCH POLL PREFERENCES WITH LOGGED IN USER */
+            /* logged in user signup(profile) (logged in user default filters at signup time) filters starts here */
+            $userGenders = [];
+            $userGenders = [$in_data['userSignUpFilters']['genders']];
+            array_push( $userGenders, '0');
+
+            $userBranches = [];
+            $userBranches = [$in_data['userSignUpFilters']['branchIds']];
+            array_push( $userBranches, 0);
+
+            $userYears = [];
+            $userYears = [$in_data['userSignUpFilters']['years']];
+            array_push( $userYears, 0);
+
+            $userGroupIds = [];
+            $userGroupIds = $in_data['userSignUpFilters']['groups'];
+            array_push( $userGroupIds, 0);
+
+            $userCountryIds = [];
+            $userCountryIds = $in_data['userSignUpFilters']['countries'];
+            array_push( $userCountryIds, 0);       
+
+            isset( $in_data['userSignUpFilters']['genders'] ) && !empty( $in_data['userSignUpFilters']['genders'] ) ? $result = $result->whereIn( 'rpg.gender', $userGenders ) : '';
+            isset( $in_data['userSignUpFilters']['branchIds'] ) && !empty( $in_data['userSignUpFilters']['branchIds'] ) ? $result = $result->whereIn( 'rpb.branchId', $userBranches ) : '';
+            isset( $in_data['userSignUpFilters']['years'] ) && !empty( $in_data['userSignUpFilters']['years'] ) ? $result = $result->whereIn( 'yrs.year', $userYears ) : '';
+            isset( $in_data['userSignUpFilters']['groups'] ) && is_array( $in_data['userSignUpFilters']['groups'] ) ? $result = $result->whereIn( 'rpgrp.groupId', $userGroupIds ) : '';
+            isset( $in_data['userSignUpFilters']['countries'] ) && is_array( $in_data['userSignUpFilters']['countries'] ) ? $result = $result->whereIn( 'rpcntr.countryId', $userCountryIds ) : '';
+            /* logged in user signup(profile) (logged in user default filters at signup time) filters ends here */
+        }
+        /** user preferences would not be applicable on special usernames ends here */        
+        
+        /* custom filters starts here */
+        isset( $in_data['poll'] ) && !empty( $in_data['poll'] ) ? $result = $result->where( 'poll.question', 'LIKE', '%'. $in_data['poll'] .'%' ) : '';
+        isset( $in_data['tags'] ) && !empty( $in_data['tags'] ) ? $result = $result->where( 'poll.question', 'LIKE', '%'. $in_data['tags'] .'%' ) : '' ;
+        isset( $in_data['people'] ) && !empty( $in_data['people'] ) ? $result = $result->where( 'usr.userName', 'LIKE', '%'. $in_data['people'] .'%' ) : '';
+
+        if( isset( $in_data['search'] ) && !empty( $in_data['search'] ) ) {
+
+            $result = $result->where( 'poll.question', 'LIKE', '%'. $in_data['search'] .'%' )
+                        ->orWhere( 'poll.allowComments', 'LIKE', '%'. $in_data['search'] .'%' )
+                        ->orWhere( 'usr.userName', 'LIKE', '%'. $in_data['search'] .'%' );
+        }
+
+        /* SECOND STEP MATCH LOGGED IN USER APPLIED CUSTOM FILTERS WITH THE POLL CREATOR */
+        isset( $in_data['genders'] ) && is_array( $in_data['genders'] ) ? $result = $result->whereIn( 'usr.gender', $in_data['genders'] ) : '';
+        isset( $in_data['years'] ) && is_array( $in_data['years'] ) ? $result = $result->whereIn( 'usr.studyingYear', $in_data['years'] ) : '';
+        isset( $in_data['countryIds'] ) && is_array( $in_data['countryIds'] ) ? $result = $result->whereIn( 'ruc.countryId', $in_data['countryIds'] ) : '';
+        isset( $in_data['groupIds'] ) && is_array( $in_data['groupIds'] ) ? $result = $result->whereIn( 'rug.groupId', $in_data['groupIds'] ) : '';
+        isset( $in_data['branchIds'] ) && is_array( $in_data['branchIds'] ) ? $result = $result->whereIn( 'usr.branchId', $in_data['branchIds'] ) : '';
+        // /* custom filters ends here */
+
+        $result = $result->get();
+        return $result->count();
+    }
+    
+    // with client suggestion to match the poll preferences with receiver and receiver preferences with poll creators profile
+    public function getLivePolls( $in_data ) {
+        $where = [
+            ['poll.userId', '!=', $in_data['userId']],
+            ['poll.published_at', '>=', $in_data['day_before']],
+            ['poll.status', '=', 'OPEN']
+        ];
+
+        $result = DB::table( 'polls AS poll' )
+                ->leftJoin( 'users AS usr', 'poll.userId', '=', 'usr.id' )
+
+                // joins with poll creator(user)
+                ->leftJoin( 'rel_user_countries AS ruc', 'usr.id', '=', 'ruc.userId' )                
+                ->leftJoin( 'rel_user_groups AS rug', 'usr.id', '=', 'rug.userId' )
+
+                // joins with polls itself
+                ->leftJoin( 'rel_poll_comments AS rpc', 'poll.id', '=', 'rpc.pollId' )
+                ->leftJoin( 'rel_poll_genders AS rpg', 'poll.id', '=', 'rpg.pollId' )
+                ->leftJoin( 'rel_poll_years AS yrs', 'poll.id', '=', 'yrs.pollId' )
+                ->leftJoin( 'rel_poll_countries AS rpcntr', 'poll.id', '=', 'rpcntr.pollId' )                
+                ->leftJoin( 'rel_poll_groups AS rpgrp', 'poll.id', '=', 'rpgrp.pollId' )
+                ->leftJoin( 'rel_poll_branches AS rpb', 'poll.id', '=', 'rpb.pollId' )
+                
+                /* get those polls which are not created by logged in user */
+                ->whereNotIn('poll.id', function ($query) use( $in_data ) {
+                    $query->select('pollId')->distinct()->from('rel_poll_votes')->where( 'userId', $in_data['userId'] );
+                })
+                ->select(
+                    'poll.id AS pollId',
+                    'poll.question AS question',
+                    'poll.imageLink AS pollImageLink',
+                    'poll.allowComments AS allowComments',
+                    'poll.published_at AS published_at',
+                    'usr.id AS userId',
+                    'usr.userName AS userName',
+                    'usr.imageLink AS userImageLink',
+                    DB::raw('COUNT(rpc.id) AS totalComments')
+                )->groupBy(
+                    'poll.id',
+                    'poll.question',
+                    'poll.imageLink',
+                    'poll.allowComments',
+                    'poll.published_at',
+                    'usr.id',
+                    'usr.userName',
+                    'usr.imageLink'
+                )->orderBy('poll.id', 'desc')
+                ->offset($in_data['offset'])->limit($in_data['limit']);
+        
+        $result = $result->where( $where ); 
+        
+        /** user preferences would not be applicable on special usernames starts here */        
+        $usrnm = strtolower( $this->loggedInUser->userName );
+        $specialUserNames = $this->constantService->getSpecialUserNames();
+        if( !in_array( $usrnm, $specialUserNames ) ) {
+
+            /* FIRST STEP MATCH POLL PREFERENCES WITH LOGGED IN USER */
+            /* logged in user signup(profile) (logged in user default filters at signup time) filters starts here */
+            $userGenders = [];
+            $userGenders = [$in_data['userSignUpFilters']['genders']];
+            array_push( $userGenders, '0');
+
+            $userBranches = [];
+            $userBranches = [$in_data['userSignUpFilters']['branchIds']];
+            array_push( $userBranches, 0);
+
+            $userYears = [];
+            $userYears = [$in_data['userSignUpFilters']['years']];
+            array_push( $userYears, 0);
+
+            $userGroupIds = [];
+            $userGroupIds = $in_data['userSignUpFilters']['groups'];
+            array_push( $userGroupIds, 0);
+
+            $userCountryIds = [];
+            $userCountryIds = $in_data['userSignUpFilters']['countries'];
+            array_push( $userCountryIds, 0);       
+
+            isset( $in_data['userSignUpFilters']['genders'] ) && !empty( $in_data['userSignUpFilters']['genders'] ) ? $result = $result->whereIn( 'rpg.gender', $userGenders ) : '';
+            isset( $in_data['userSignUpFilters']['branchIds'] ) && !empty( $in_data['userSignUpFilters']['branchIds'] ) ? $result = $result->whereIn( 'rpb.branchId', $userBranches ) : '';
+            isset( $in_data['userSignUpFilters']['years'] ) && !empty( $in_data['userSignUpFilters']['years'] ) ? $result = $result->whereIn( 'yrs.year', $userYears ) : '';
+            isset( $in_data['userSignUpFilters']['groups'] ) && is_array( $in_data['userSignUpFilters']['groups'] ) ? $result = $result->whereIn( 'rpgrp.groupId', $userGroupIds ) : '';
+            isset( $in_data['userSignUpFilters']['countries'] ) && is_array( $in_data['userSignUpFilters']['countries'] ) ? $result = $result->whereIn( 'rpcntr.countryId', $userCountryIds ) : '';
+            /* logged in user signup(profile) (logged in user default filters at signup time) filters ends here */
+        }
+        /** user preferences would not be applicable on special usernames ends here */
+        
+        /* custom filters starts here */
+        isset( $in_data['poll'] ) && !empty( $in_data['poll'] ) ? $result = $result->where( 'poll.question', 'LIKE', '%'. $in_data['poll'] .'%' ) : '';
+        isset( $in_data['tags'] ) && !empty( $in_data['tags'] ) ? $result = $result->where( 'poll.question', 'LIKE', '%'. $in_data['tags'] .'%' ) : '' ;
+        isset( $in_data['people'] ) && !empty( $in_data['people'] ) ? $result = $result->where( 'usr.userName', 'LIKE', '%'. $in_data['people'] .'%' ) : '';
+
+        if( isset( $in_data['search'] ) && !empty( $in_data['search'] ) ) {
+
+            $result = $result->where( 'poll.question', 'LIKE', '%'. $in_data['search'] .'%' )
+                        ->orWhere( 'poll.allowComments', 'LIKE', '%'. $in_data['search'] .'%' )
+                        ->orWhere( 'usr.userName', 'LIKE', '%'. $in_data['search'] .'%' );
+        }
+
+        /* SECOND STEP MATCH LOGGED IN USER APPLIED CUSTOM FILTERS WITH THE POLL CREATOR */
+        isset( $in_data['genders'] ) && is_array( $in_data['genders'] ) ? $result = $result->whereIn( 'usr.gender', $in_data['genders'] ) : '';
+        isset( $in_data['years'] ) && is_array( $in_data['years'] ) ? $result = $result->whereIn( 'usr.studyingYear', $in_data['years'] ) : '';
+        isset( $in_data['countryIds'] ) && is_array( $in_data['countryIds'] ) ? $result = $result->whereIn( 'ruc.countryId', $in_data['countryIds'] ) : '';
+        isset( $in_data['groupIds'] ) && is_array( $in_data['groupIds'] ) ? $result = $result->whereIn( 'rug.groupId', $in_data['groupIds'] ) : '';
+        isset( $in_data['branchIds'] ) && is_array( $in_data['branchIds'] ) ? $result = $result->whereIn( 'usr.branchId', $in_data['branchIds'] ) : '';
+        // /* custom filters ends here */
+
+        $result = $result->get();
+        // dd(DB::getQueryLog());
+
+        // Log::info('----------------------------Logging query begins here------------------------------------');
+        // $queries    = DB::getQueryLog();
+        // $lastQuery = end($queries);
+        // Log::info($lastQuery);
+        // Log::info('----------------------------Logging query ends here------------------------------------');
 
         if( $result ) {
 
@@ -2133,6 +2472,7 @@ class PollService {
                 $out_data[$key]['allowComments'] = $val['allowComments'];
                 $out_data[$key]['published_at'] = $val['published_at'];
                 $out_data[$key]['vote'] = $val['vote'];
+                isset( $val['voted_at'] ) ? $out_data[$key]['voted_at'] = $val['voted_at'] : '';
                 $out_data[$key]['userId'] = $val['userId'];
                 $out_data[$key]['userName'] = $val['userName'];
 
@@ -2511,7 +2851,8 @@ class PollService {
                     'usr.id',
                     'usr.userName',
                     'usr.imageLink'
-                )->orderBy('poll.id', 'desc')->orderBy('rpv.vote')
+                // )->orderBy('poll.id', 'desc')->orderBy('rpv.vote')
+                )->orderBy('rpv.created_at', 'desc')
                 ->get(); 
         return $result->count();
     }
@@ -2529,6 +2870,7 @@ class PollService {
                     ->leftJoin('users AS usr', 'poll.userId', '=', 'usr.id')
                     ->leftJoin( 'rel_poll_comments AS rpc', 'poll.id', '=', 'rpc.pollId' )
                     ->where('poll.status', '=', 'OPEN')
+                    ->where('rpv.userId', '=', $in_data['userId'])  
                     ->whereIn('rpv.pollId', $pollIds)
                     ->select(
                         'poll.id AS pollId',
@@ -2537,6 +2879,7 @@ class PollService {
                         'poll.allowComments AS allowComments',
                         'poll.published_at AS published_at',
                         'rpv.vote AS vote',
+                        'rpv.created_at AS voted_at',
                         'usr.id AS userId',
                         'usr.userName AS userName',
                         'usr.imageLink AS userImageLink',
@@ -2555,10 +2898,12 @@ class PollService {
             'poll.allowComments',
             'poll.published_at',
             'rpv.vote',
+            'rpv.created_at',
             'usr.id',
             'usr.userName',
             'usr.imageLink'
-        )->orderBy('poll.id', 'desc')->orderBy('rpv.vote')
+        // )->orderBy('poll.id', 'desc')->orderBy('rpv.vote')
+        )->orderBy('rpv.created_at', 'desc')
         ->offset($in_data['offset'])->limit($in_data['limit'])
         ->get(); 
 
@@ -2578,6 +2923,7 @@ class PollService {
                     $out_data[$i]['allowComments'] = $val->allowComments;
                     $out_data[$i]['published_at'] = $val->published_at;
                     $out_data[$i]['vote'] = $val->vote;
+                    $out_data[$i]['voted_at'] = $val->voted_at;
                     $out_data[$i]['userId'] = $val->userId;
                     $out_data[$i]['userName'] = $val->userName;
                     $out_data[$i]['userImageLink'] = $val->userImageLink;
@@ -2626,6 +2972,7 @@ class PollService {
                         $out_data[$index]['allowComments'] = $val->allowComments;
                         $out_data[$index]['published_at'] = $val->published_at;
                         $out_data[$index]['vote'] = $val->vote;
+                        $out_data[$index]['voted_at'] = $val->voted_at;
                         $out_data[$index]['userId'] = $val->userId;
                         $out_data[$index]['userName'] = $val->userName;
                         $out_data[$index]['userImageLink'] = $val->userImageLink;
@@ -2678,7 +3025,7 @@ class PollService {
         $poll = RelPollCommentsLikes::where([
             [ 'pollId', '=', $in_data['pollId'] ],
             [ 'relPollCommentsId', '=', $in_data['relPollCommentsId'] ],
-            [ 'userId', '=', $in_data['userId'] ],
+            [ 'userId', '=', $in_data['relPollCommentsId'] ],
         ])->count();
         return $poll > 0 ? true : false;
     }
@@ -2714,6 +3061,15 @@ class PollService {
         $poll = Poll::where([
             ['id', '=', $pollId],
             ['allowComments', '=', 'YES']
+        ])->count();
+        return $poll > 0 ? true : false;
+    }
+
+    public function isUserVotedForPoll( $userId, $pollId ) {
+
+        $poll = RelPollVotes::where([
+            ['pollId', '=', $pollId],
+            ['userId', '=', $userId]
         ])->count();
         return $poll > 0 ? true : false;
     }
