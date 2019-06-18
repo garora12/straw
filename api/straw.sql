@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jun 17, 2019 at 01:26 PM
+-- Generation Time: Jun 18, 2019 at 01:14 PM
 -- Server version: 10.3.13-MariaDB-1:10.3.13+maria~bionic
 -- PHP Version: 7.3.3-1+ubuntu18.04.1+deb.sury.org+1
 
@@ -439,7 +439,8 @@ INSERT INTO `polls` (`id`, `userId`, `question`, `imageLink`, `allowComments`, `
 (55, 2, 'Let’s party tonight. How are interested?? #party #DJ', '1560775659.jpg', 'YES', 'OPEN', '2019-06-17 12:47:29', '2019-06-17 12:47:29', '2019-06-17 12:47:29'),
 (56, 3, 'How was the INDIA vs PAKISTAN match ??', '1560776467.jpg', 'YES', 'OPEN', '2019-06-17 13:01:05', '2019-06-17 13:01:05', '2019-06-17 13:01:05'),
 (63, 2, 'Networking is mess of wires\n#IT #Networking', '1560777620.jpg', 'YES', 'OPEN', '2019-06-17 13:20:14', '2019-06-17 13:20:14', '2019-06-17 13:20:14'),
-(65, 2, 'ReactPHP is another low-level library for event-driven programming in PHP. Managing Concurrency: From Promises to Coroutines is now so easy.', '1560777807.png', 'YES', 'OPEN', '2019-06-17 13:23:27', '2019-06-17 13:23:27', '2019-06-17 13:23:27');
+(70, 2, 'ReactPHP is another low-level library for event-driven programming in PHP. Managing Concurrency: From Promises to Coroutines is now so easy.', '1560855384.png', 'YES', 'OPEN', '2019-06-18 10:56:24', '2019-06-18 10:56:24', '2019-06-18 10:56:24'),
+(72, 2, 'My new dog. How’s the color?', '1560855851.jpg', 'YES', 'OPEN', '2019-06-18 11:04:10', '2019-06-18 11:04:10', '2019-06-18 11:04:10');
 
 -- --------------------------------------------------------
 
@@ -474,7 +475,8 @@ INSERT INTO `rel_poll_branches` (`id`, `pollId`, `branchId`, `status`, `created_
 (55, 55, 0, 'OPEN', '2019-06-17 12:47:29', '2019-06-17 12:47:29'),
 (56, 56, 0, 'OPEN', '2019-06-17 13:01:05', '2019-06-17 13:01:05'),
 (63, 63, 0, 'OPEN', '2019-06-17 13:20:14', '2019-06-17 13:20:14'),
-(65, 65, 0, 'OPEN', '2019-06-17 13:23:27', '2019-06-17 13:23:27');
+(70, 70, 0, 'OPEN', '2019-06-18 10:56:24', '2019-06-18 10:56:24'),
+(72, 72, 0, 'OPEN', '2019-06-18 11:04:10', '2019-06-18 11:04:10');
 
 -- --------------------------------------------------------
 
@@ -504,7 +506,9 @@ INSERT INTO `rel_poll_comments` (`id`, `pollId`, `userId`, `parentId`, `comment`
 (4, 4, 2, 0, 'Write once run everywhere from web, desktop to any mobile device', 'OPEN', '2019-06-17 07:11:03', '2019-06-17 07:11:03'),
 (5, 13, 6, 0, 'python is best for this case', 'OPEN', '2019-06-17 09:47:31', '2019-06-17 09:47:31'),
 (6, 13, 6, 0, 'one can use GO language', 'OPEN', '2019-06-17 10:12:37', '2019-06-17 10:12:37'),
-(7, 11, 6, 0, 'oh i liked it', 'OPEN', '2019-06-17 12:21:58', '2019-06-17 12:21:58');
+(7, 11, 6, 0, 'oh i liked it', 'OPEN', '2019-06-17 12:21:58', '2019-06-17 12:21:58'),
+(8, 56, 2, 0, 'Test', 'OPEN', '2019-06-18 10:31:32', '2019-06-18 10:31:32'),
+(9, 70, 3, 0, 'Working all things ??', 'OPEN', '2019-06-18 10:57:18', '2019-06-18 10:57:18');
 
 -- --------------------------------------------------------
 
@@ -537,7 +541,10 @@ INSERT INTO `rel_poll_comments_likes` (`id`, `pollId`, `relPollCommentsId`, `use
 (7, 13, 5, 6, 'YES', 'OPEN', '2019-06-17 09:47:40', '2019-06-17 09:47:40'),
 (8, 13, 5, 6, 'NO', 'OPEN', '2019-06-17 09:47:48', '2019-06-17 09:47:48'),
 (9, 13, 5, 6, 'YES', 'OPEN', '2019-06-17 09:47:53', '2019-06-17 09:47:53'),
-(10, 11, 7, 6, 'YES', 'OPEN', '2019-06-17 12:22:11', '2019-06-17 12:22:11');
+(10, 11, 7, 6, 'YES', 'OPEN', '2019-06-17 12:22:11', '2019-06-17 12:22:11'),
+(11, 56, 8, 2, 'YES', 'OPEN', '2019-06-18 10:32:30', '2019-06-18 10:32:30'),
+(12, 56, 8, 2, 'NO', 'OPEN', '2019-06-18 10:32:32', '2019-06-18 10:32:32'),
+(13, 70, 9, 3, 'YES', 'OPEN', '2019-06-18 10:57:25', '2019-06-18 10:57:25');
 
 -- --------------------------------------------------------
 
@@ -572,7 +579,8 @@ INSERT INTO `rel_poll_countries` (`id`, `pollId`, `countryId`, `status`, `create
 (55, 55, 0, 'OPEN', '2019-06-17 12:47:29', '2019-06-17 12:47:29'),
 (56, 56, 0, 'OPEN', '2019-06-17 13:01:05', '2019-06-17 13:01:05'),
 (63, 63, 0, 'OPEN', '2019-06-17 13:20:14', '2019-06-17 13:20:14'),
-(65, 65, 0, 'OPEN', '2019-06-17 13:23:27', '2019-06-17 13:23:27');
+(70, 70, 0, 'OPEN', '2019-06-18 10:56:24', '2019-06-18 10:56:24'),
+(72, 72, 0, 'OPEN', '2019-06-18 11:04:10', '2019-06-18 11:04:10');
 
 -- --------------------------------------------------------
 
@@ -614,7 +622,8 @@ INSERT INTO `rel_poll_genders` (`id`, `pollId`, `gender`, `status`, `created_at`
 (62, 55, '0', 'OPEN', '2019-06-17 12:47:29', '2019-06-17 12:47:29'),
 (63, 56, '0', 'OPEN', '2019-06-17 13:01:05', '2019-06-17 13:01:05'),
 (70, 63, '0', 'OPEN', '2019-06-17 13:20:14', '2019-06-17 13:20:14'),
-(72, 65, '0', 'OPEN', '2019-06-17 13:23:27', '2019-06-17 13:23:27');
+(77, 70, '0', 'OPEN', '2019-06-18 10:56:24', '2019-06-18 10:56:24'),
+(79, 72, '0', 'OPEN', '2019-06-18 11:04:10', '2019-06-18 11:04:10');
 
 -- --------------------------------------------------------
 
@@ -649,7 +658,8 @@ INSERT INTO `rel_poll_groups` (`id`, `pollId`, `groupId`, `status`, `created_at`
 (55, 55, 0, 'OPEN', '2019-06-17 12:47:29', '2019-06-17 12:47:29'),
 (56, 56, 0, 'OPEN', '2019-06-17 13:01:05', '2019-06-17 13:01:05'),
 (63, 63, 0, 'OPEN', '2019-06-17 13:20:14', '2019-06-17 13:20:14'),
-(65, 65, 0, 'OPEN', '2019-06-17 13:23:27', '2019-06-17 13:23:27');
+(70, 70, 0, 'OPEN', '2019-06-18 10:56:24', '2019-06-18 10:56:24'),
+(72, 72, 0, 'OPEN', '2019-06-18 11:04:10', '2019-06-18 11:04:10');
 
 -- --------------------------------------------------------
 
@@ -678,7 +688,9 @@ INSERT INTO `rel_poll_votes` (`id`, `pollId`, `userId`, `vote`, `status`, `creat
 (7, 15, 3, 'YES', 'OPEN', '2019-06-17 11:04:42', '2019-06-17 11:04:42'),
 (8, 11, 6, 'YES', 'OPEN', '2019-06-17 12:19:37', '2019-06-17 12:19:37'),
 (9, 10, 6, 'YES', 'OPEN', '2019-06-17 12:20:33', '2019-06-17 12:20:33'),
-(10, 55, 3, 'YES', 'OPEN', '2019-06-17 12:58:49', '2019-06-17 12:58:49');
+(10, 55, 3, 'YES', 'OPEN', '2019-06-17 12:58:49', '2019-06-17 12:58:49'),
+(11, 56, 2, 'YES', 'OPEN', '2019-06-18 10:31:02', '2019-06-18 10:31:02'),
+(12, 70, 3, 'YES', 'OPEN', '2019-06-18 10:56:58', '2019-06-18 10:56:58');
 
 -- --------------------------------------------------------
 
@@ -744,7 +756,8 @@ INSERT INTO `rel_poll_years` (`id`, `pollId`, `year`, `status`, `created_at`, `u
 (55, 55, 0, 'OPEN', '2019-06-17 12:47:29', '2019-06-17 12:47:29'),
 (56, 56, 0, 'OPEN', '2019-06-17 13:01:05', '2019-06-17 13:01:05'),
 (63, 63, 0, 'OPEN', '2019-06-17 13:20:14', '2019-06-17 13:20:14'),
-(65, 65, 0, 'OPEN', '2019-06-17 13:23:27', '2019-06-17 13:23:27');
+(70, 70, 0, 'OPEN', '2019-06-18 10:56:24', '2019-06-18 10:56:24'),
+(72, 72, 0, 'OPEN', '2019-06-18 11:04:10', '2019-06-18 11:04:10');
 
 -- --------------------------------------------------------
 
@@ -766,11 +779,11 @@ CREATE TABLE `rel_user_countries` (
 --
 
 INSERT INTO `rel_user_countries` (`id`, `userId`, `countryId`, `status`, `created_at`, `updated_at`) VALUES
-(58, 5, 230, 'OPEN', '2019-06-17 08:07:10', '2019-06-17 08:07:10'),
 (74, 4, 1, 'OPEN', '2019-06-17 09:44:31', '2019-06-17 09:44:31'),
 (109, 6, 1, 'OPEN', '2019-06-17 13:09:58', '2019-06-17 13:09:58'),
-(114, 3, 1, 'OPEN', '2019-06-17 13:16:17', '2019-06-17 13:16:17'),
-(116, 2, 1, 'OPEN', '2019-06-17 13:19:20', '2019-06-17 13:19:20');
+(120, 5, 230, 'OPEN', '2019-06-17 13:36:46', '2019-06-17 13:36:46'),
+(122, 3, 1, 'OPEN', '2019-06-18 08:50:40', '2019-06-18 08:50:40'),
+(126, 2, 1, 'OPEN', '2019-06-18 11:41:39', '2019-06-18 11:41:39');
 
 -- --------------------------------------------------------
 
@@ -792,8 +805,6 @@ CREATE TABLE `rel_user_groups` (
 --
 
 INSERT INTO `rel_user_groups` (`id`, `userId`, `groupId`, `status`, `created_at`, `updated_at`) VALUES
-(387, 5, 11, 'OPEN', '2019-06-17 08:07:10', '2019-06-17 08:07:10'),
-(388, 5, 1, 'OPEN', '2019-06-17 08:07:10', '2019-06-17 08:07:10'),
 (514, 4, 7, 'OPEN', '2019-06-17 09:44:31', '2019-06-17 09:44:31'),
 (515, 4, 5, 'OPEN', '2019-06-17 09:44:31', '2019-06-17 09:44:31'),
 (516, 4, 8, 'OPEN', '2019-06-17 09:44:31', '2019-06-17 09:44:31'),
@@ -808,18 +819,20 @@ INSERT INTO `rel_user_groups` (`id`, `userId`, `groupId`, `status`, `created_at`
 (693, 6, 33, 'OPEN', '2019-06-17 13:09:57', '2019-06-17 13:09:57'),
 (694, 6, 32, 'OPEN', '2019-06-17 13:09:57', '2019-06-17 13:09:57'),
 (695, 6, 4, 'OPEN', '2019-06-17 13:09:57', '2019-06-17 13:09:57'),
-(720, 3, 29, 'OPEN', '2019-06-17 13:16:17', '2019-06-17 13:16:17'),
-(721, 3, 4, 'OPEN', '2019-06-17 13:16:17', '2019-06-17 13:16:17'),
-(722, 3, 31, 'OPEN', '2019-06-17 13:16:17', '2019-06-17 13:16:17'),
-(723, 3, 33, 'OPEN', '2019-06-17 13:16:17', '2019-06-17 13:16:17'),
-(724, 3, 30, 'OPEN', '2019-06-17 13:16:17', '2019-06-17 13:16:17'),
-(725, 3, 32, 'OPEN', '2019-06-17 13:16:17', '2019-06-17 13:16:17'),
-(732, 2, 24, 'OPEN', '2019-06-17 13:19:20', '2019-06-17 13:19:20'),
-(733, 2, 25, 'OPEN', '2019-06-17 13:19:20', '2019-06-17 13:19:20'),
-(734, 2, 27, 'OPEN', '2019-06-17 13:19:20', '2019-06-17 13:19:20'),
-(735, 2, 26, 'OPEN', '2019-06-17 13:19:20', '2019-06-17 13:19:20'),
-(736, 2, 3, 'OPEN', '2019-06-17 13:19:20', '2019-06-17 13:19:20'),
-(737, 2, 28, 'OPEN', '2019-06-17 13:19:20', '2019-06-17 13:19:20');
+(744, 5, 1, 'OPEN', '2019-06-17 13:36:46', '2019-06-17 13:36:46'),
+(745, 5, 11, 'OPEN', '2019-06-17 13:36:46', '2019-06-17 13:36:46'),
+(752, 3, 29, 'OPEN', '2019-06-18 08:50:40', '2019-06-18 08:50:40'),
+(753, 3, 4, 'OPEN', '2019-06-18 08:50:40', '2019-06-18 08:50:40'),
+(754, 3, 31, 'OPEN', '2019-06-18 08:50:40', '2019-06-18 08:50:40'),
+(755, 3, 33, 'OPEN', '2019-06-18 08:50:40', '2019-06-18 08:50:40'),
+(756, 3, 30, 'OPEN', '2019-06-18 08:50:40', '2019-06-18 08:50:40'),
+(757, 3, 32, 'OPEN', '2019-06-18 08:50:40', '2019-06-18 08:50:40'),
+(776, 2, 3, 'OPEN', '2019-06-18 11:41:39', '2019-06-18 11:41:39'),
+(777, 2, 27, 'OPEN', '2019-06-18 11:41:39', '2019-06-18 11:41:39'),
+(778, 2, 26, 'OPEN', '2019-06-18 11:41:39', '2019-06-18 11:41:39'),
+(779, 2, 24, 'OPEN', '2019-06-18 11:41:39', '2019-06-18 11:41:39'),
+(780, 2, 28, 'OPEN', '2019-06-18 11:41:39', '2019-06-18 11:41:39'),
+(781, 2, 25, 'OPEN', '2019-06-18 11:41:39', '2019-06-18 11:41:39');
 
 -- --------------------------------------------------------
 
@@ -842,11 +855,9 @@ CREATE TABLE `rel_user_notification_tokens` (
 --
 
 INSERT INTO `rel_user_notification_tokens` (`id`, `userId`, `type`, `token`, `status`, `created_at`, `updated_at`) VALUES
-(1, 1, 'WEB', 'c_5kFbmN83w:APA91bE7HjPUKtGTPsfW9YnErlvMwlqDwDFkrW9t4GqZVglv2-t9_pW_oXjUx3-Su19rcgR4F-_ohqZTPz3vjvwww64UgAGvsMzxlKW1ilWv9jOyvzT2tCcavm1V98CjEuMxgfi4wL-W', 'OPEN', '2019-06-17 05:27:51', '2019-06-17 05:27:51'),
-(12, 2, 'IPHONE', 'c_WKqZz4r8k:APA91bET79yqG3rXjHmBdgmuSLlYhA3kp5lgB9-c8r4v4mKao_dR5oqt4LUVZY-8QKwRQFj_H10Z6e0Mgy1z6l7bfme9bK8zH1ygNvmqxTW-RyxJrRt4b3zkdOltyb8JkQOt7H_uJGoE', 'OPEN', '2019-06-17 07:06:07', '2019-06-17 07:06:07'),
-(13, 5, 'IPHONE', 'fJ69HutLSGo:APA91bHPNwJs4IIWA5NaJ4Suhd1UldcVa5518pXvoVpPGJjK4HsACdiW3zuI12lAFgKpB5zMrwcpHEZ0ossT9YSsplj8LYxTs3hC5bwY7rIpCi_Psdbmwyz504rnT0oLhVHL9Frw8xZS', 'OPEN', '2019-06-17 07:44:06', '2019-06-17 07:44:06'),
-(15, 6, 'IPHONE', 'd3NOfzmbkX8:APA91bHrskgGGOyLVy_rBpUk-GfW2_LJYn6uRZXWuGNNrLCE9-lUOrIob6AGeKd4dNtCDG2rAJPGoRrm6WCVNBEk9nUl2kN4jeZarRRq5G0Ycp3dkdL-s9rQxG70FagEsRio6tQGfgP7', 'OPEN', '2019-06-17 09:45:37', '2019-06-17 09:45:37'),
-(16, 3, 'IPHONE', 'fLyMBoZFAKw:APA91bFqxUyBaqtB72F-A9kEBaOZTMPozaCMV_mx9qm1xZJopdxmTTDftFBytkFcOim_2ITB0VbUP1ymdboGb6TnUlUr8942TwCYo7oMgvJ6C_gi3XLx_F5W3HEz8AlU0MnPHqLXP0_e', 'OPEN', '2019-06-17 10:14:47', '2019-06-17 10:14:47');
+(1, 1, 'WEB', 'cCXXTJhNdGA:APA91bE-49SnmIFldiKY4rkzaVIijhFr45d5r6N59S5B9TfFR2cstcN6V986nidilFKuG8iCBoH2Cr90zcxjqS6OljPuqqc9oWsdbnBuK3wLKEFoyMx46KZQS5G9xx2evOhYPtKrkXuW', 'OPEN', '2019-06-17 05:27:51', '2019-06-17 05:27:51'),
+(19, 3, 'IPHONE', 'ftdBr4ATZJ8:APA91bHfOI8UFDTV4o2mx9N_stAPGuHatLL9dsznpAsSVPBQxQ0l4OaTFLKGju8gikEgZsVNTLk_iMB5wM2g7zzUhRTCWOb7PA2iN3pN2k7DGgd7IL7bAn56Ws70MSt3Yu0Y_5nzG47Z', 'OPEN', '2019-06-18 08:50:52', '2019-06-18 08:50:52'),
+(21, 2, 'IPHONE', 'e3vAyQlieaI:APA91bH5ICUWnLLUz1UdKNjUp2hvwmu2MKIg8CznHblMYS7uwaewkOD9WPWPfoVChFomMDAy_f2XoZpnfGkfeCtCq8h5Jcj7uebUbPkdSW_XAbb7oT1VuEYgMPpxwCCeGkN26wXztyKN', 'OPEN', '2019-06-18 10:34:01', '2019-06-18 10:34:01');
 
 -- --------------------------------------------------------
 
@@ -950,7 +961,16 @@ INSERT INTO `rel_user_points` (`id`, `userId`, `pollId`, `transactionFor`, `tran
 (77, 2, 62, 'POLLCREATED', 'DEBIT', 10, 'OPEN', '2019-06-17 13:16:13', '2019-06-17 13:16:13'),
 (78, 2, 63, 'POLLCREATED', 'DEBIT', 10, 'OPEN', '2019-06-17 13:20:14', '2019-06-17 13:20:14'),
 (79, 2, 64, 'POLLCREATED', 'DEBIT', 10, 'OPEN', '2019-06-17 13:21:23', '2019-06-17 13:21:23'),
-(80, 2, 65, 'POLLCREATED', 'DEBIT', 10, 'OPEN', '2019-06-17 13:23:27', '2019-06-17 13:23:27');
+(80, 2, 65, 'POLLCREATED', 'DEBIT', 10, 'OPEN', '2019-06-17 13:23:27', '2019-06-17 13:23:27'),
+(81, 2, 56, 'POLLVOTED', 'CREDIT', 1, 'OPEN', '2019-06-18 10:31:02', '2019-06-18 10:31:02'),
+(82, 2, 66, 'POLLCREATED', 'DEBIT', 10, 'OPEN', '2019-06-18 10:33:34', '2019-06-18 10:33:34'),
+(83, 2, 67, 'POLLCREATED', 'DEBIT', 10, 'OPEN', '2019-06-18 10:36:20', '2019-06-18 10:36:20'),
+(84, 2, 68, 'POLLCREATED', 'DEBIT', 10, 'OPEN', '2019-06-18 10:38:26', '2019-06-18 10:38:26'),
+(85, 2, 69, 'POLLCREATED', 'DEBIT', 10, 'OPEN', '2019-06-18 10:40:16', '2019-06-18 10:40:16'),
+(86, 2, 70, 'POLLCREATED', 'DEBIT', 10, 'OPEN', '2019-06-18 10:56:24', '2019-06-18 10:56:24'),
+(87, 3, 70, 'POLLVOTED', 'CREDIT', 1, 'OPEN', '2019-06-18 10:56:58', '2019-06-18 10:56:58'),
+(88, 2, 71, 'POLLCREATED', 'DEBIT', 10, 'OPEN', '2019-06-18 10:57:58', '2019-06-18 10:57:58'),
+(89, 2, 72, 'POLLCREATED', 'DEBIT', 10, 'OPEN', '2019-06-18 11:04:10', '2019-06-18 11:04:10');
 
 -- --------------------------------------------------------
 
@@ -978,7 +998,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `userName`, `universityEmail`, `password`, `imageLink`, `gender`, `studyingYear`, `branchId`, `status`, `created_at`, `updated_at`) VALUES
 (1, 'bawa_d', 'bawa_d@ymail.com', '$2y$10$LSXYRyh9Wt/jhvqxXgq/vO38EJCl/VeLBaclmRGzG3HWf39qo5txC', NULL, 'MALE', 4, 1, 'OPEN', '2019-04-16 08:45:46', '2019-04-16 08:45:46'),
-(2, 'deepak', 'deepak@yopmail.com', '$2y$10$IlBXSJ1eiW0riPNEziZGn.1rbtXftRgx4IefYD2l6C8us2e.u56Fm', NULL, 'MALE', 1, 3, 'OPEN', '2019-06-17 05:56:01', '2019-06-17 05:56:01'),
+(2, 'deepak', 'deepak@yopmail.com', '$2y$10$IlBXSJ1eiW0riPNEziZGn.1rbtXftRgx4IefYD2l6C8us2e.u56Fm', '1560858095.jpg', 'MALE', 1, 3, 'OPEN', '2019-06-17 05:56:01', '2019-06-17 05:56:01'),
 (3, 'manoj', 'manoj@yopmail.com', '$2y$10$wEoBCbYWqRQaASSRKTobq.gDeRK0H7JC03gvB/3z8L5upefxiSUtG', '1560766502.jpg', 'MALE', 1, 1, 'OPEN', '2019-06-17 06:14:13', '2019-06-17 06:14:13'),
 (4, 'shanti', 'shanti@yopmail.com', '$2y$10$ZlufJNOh/hn.YPiIQ0XgYe0cvFZKCZQVTjFviGJrEMsuvRiN/ASPG', NULL, 'FEMALE', 1, 5, 'OPEN', '2019-06-17 06:36:58', '2019-06-17 06:36:58'),
 (5, 'founder1', 'nicholaspowell@hotmail.com', '$2y$10$sLXMkebtizaLG8GViF8.T.tTVgHrf11Dh0QI6/.5Hnn53uQZg66M.', '1560758677.jpg', 'MALE', 1, 4, 'OPEN', '2019-06-17 07:44:05', '2019-06-17 07:44:05'),
@@ -1187,67 +1207,67 @@ ALTER TABLE `migrations`
 -- AUTO_INCREMENT for table `polls`
 --
 ALTER TABLE `polls`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
 --
 -- AUTO_INCREMENT for table `rel_poll_branches`
 --
 ALTER TABLE `rel_poll_branches`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
 --
 -- AUTO_INCREMENT for table `rel_poll_comments`
 --
 ALTER TABLE `rel_poll_comments`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 --
 -- AUTO_INCREMENT for table `rel_poll_comments_likes`
 --
 ALTER TABLE `rel_poll_comments_likes`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 --
 -- AUTO_INCREMENT for table `rel_poll_countries`
 --
 ALTER TABLE `rel_poll_countries`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
 --
 -- AUTO_INCREMENT for table `rel_poll_genders`
 --
 ALTER TABLE `rel_poll_genders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
 --
 -- AUTO_INCREMENT for table `rel_poll_groups`
 --
 ALTER TABLE `rel_poll_groups`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
 --
 -- AUTO_INCREMENT for table `rel_poll_votes`
 --
 ALTER TABLE `rel_poll_votes`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 --
 -- AUTO_INCREMENT for table `rel_poll_years`
 --
 ALTER TABLE `rel_poll_years`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
 --
 -- AUTO_INCREMENT for table `rel_user_countries`
 --
 ALTER TABLE `rel_user_countries`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=117;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=127;
 --
 -- AUTO_INCREMENT for table `rel_user_groups`
 --
 ALTER TABLE `rel_user_groups`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=738;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=782;
 --
 -- AUTO_INCREMENT for table `rel_user_notification_tokens`
 --
 ALTER TABLE `rel_user_notification_tokens`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 --
 -- AUTO_INCREMENT for table `rel_user_points`
 --
 ALTER TABLE `rel_user_points`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=81;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=90;
 --
 -- AUTO_INCREMENT for table `users`
 --

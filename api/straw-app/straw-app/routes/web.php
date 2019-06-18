@@ -1,6 +1,9 @@
 <?php
 ini_set( 'display_errors', 1 ); error_reporting( E_ALL );
-define('SERVER_API_KEY', 'AIzaSyDMJqJA9h3QpXjH0cuINWSt3FslAOlUpbU');
+// define('SERVER_API_KEY', 'AIzaSyDMJqJA9h3QpXjH0cuINWSt3FslAOlUpbU');
+define('SERVER_API_KEY', 'AIzaSyC9bJa8TC31xYcKWsGz0CTcS-Ege1kl42w');
+
+// define('SERVER_API_KEY', 'AAAAVt0REd8:APA91bHtbiDbQqlu_6SNIwJG0mLAnhodCufUnVBYhDDxMH8hvH65XEb-qoIsD1eOKpDwE2ZFlTuEOCnm2a7gRdTJ-a0dKW1OQoAsJ45BlZ0kUw7xAcbKEQTcntMHB9gpvfDkK1JER8c2');
 
 /*
 |--------------------------------------------------------------------------

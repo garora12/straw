@@ -56,7 +56,7 @@ return [
     */
  
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'deepak4bawa@gmail.com'),
+        'address' => env('MAIL_FROM_ADDRESS', 'ndptechnologies@gmail.com'),
         'name' => env('MAIL_FROM_NAME', 'Straw Admin'),
     ],
  

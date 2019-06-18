@@ -235,7 +235,8 @@ class NotificationController extends Controller
         }
 
         foreach( $outTokens AS $key => $val ) {
-            $tokens[] = $val['token'];
+            // $tokens[] = $val['token'];
+            $tokens[] = $val->token;
         }
 
         $data = [

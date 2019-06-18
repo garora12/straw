@@ -80,19 +80,23 @@ class NotificationService {
                         ['runt.userId', '!=', $userId]
                     ] )
                     ->get();
+            // print_r($result); die('die 1');
+
         } else {
 
             // $result = RelUserNotificationToken::select('token')->get(); 
             $result = DB::table('rel_user_notification_tokens AS runt')
                     ->leftJoin('user_notification_settings AS uns', 'runt.userId', '=', 'uns.userId')
                     ->select( 'runt.token AS token', 'uns.settings AS settings' )
-                    ->where( [
-                        ['userId', '!=', $userId]
-                    ] )
+                    // ->where( [
+                    //     ['userId', '!=', $userId]
+                    // ] )
                     ->get();
+            // print_r($result); die('die 2');
         }
         ini_set('max_execution_time', 300);
-        return $result->toArray();
+        $ret = $result->toArray();
+        return $ret;
     }
 
     public function getDeviceTokenByUserId( $userId ) {
@@ -255,7 +259,19 @@ class NotificationService {
 
         ini_set('max_execution_time', 0);
         foreach( $outTokens AS $key => $val ) {
-            $tokens[] = $val['token'];
+            $type = gettype( $val );
+            if( $type == "object" ) {
+                $tokens[] = $val->token;
+            } else {
+                $tokens[] = $val['token'];
+            }
+//             if( is_array( $val['token'] ) ) {
+// die('if');
+//                 $tokens[] = $val['token'];
+//             } else {
+// die('else');
+//                 $tokens[] = $val->token;
+//             }
         }
 
         $header = [
