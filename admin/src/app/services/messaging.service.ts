@@ -39,9 +39,12 @@ export class MessagingService {
 		formData.append('token', in_data.token);
 		formData.append('type', 'WEB');
 		
+		let user = JSON.parse( localStorage.getItem('currentUser') );
+		let userToken = user.token;
+
 		let httpOptions = {
 			headers: new HttpHeaders({
-			 'Token': this.constantsService.token
+			 'Token': userToken
 			})
 		};
 
@@ -68,22 +71,31 @@ export class MessagingService {
 	}
 
 	getPermission() {
-
+		
 		this.messaging.requestPermission()
 		.then(() => {
 			console.log('Notification permission granted.');
-			return this.messaging.getToken();
+			let result = this.messaging.getToken();
+			// console.log('result', result);
+			return result;
 		})
 		.then(token => {
 			console.log(token);
 			this.updateToken(token);
-			
+			// console.log(this.constantsService); 
+
+
+			let user = JSON.parse( localStorage.getItem('currentUser') );
+			let userDetails = user.user;
+			console.log('userDetails.id', userDetails.id);
+
 			let in_data = {
-				'userId': this.constantsService.user.id,
+				'userId': userDetails.id,
 				'token': token
 			};
 
 			this.saveDeviceToken( in_data ).subscribe( result => {
+				console.log('test');
 				console.log('result');
 				console.log(result);
 			} );

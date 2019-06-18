@@ -44,6 +44,7 @@ export class PollService {
 
     return this.httpClient.post( 
       `${this.apiEndPoint}/polls`, 
+      // `${this.apiEndPoint}/pollsDed`, 
       formData,
       httpOptions
       )
@@ -200,7 +201,7 @@ export class PollService {
       })
     };
 
-    let url = `${this.apiEndPoint}/polls/getLivePolls?offset=${in_data.offset}&limit=${in_data.limit}`;
+    let url = `${this.apiEndPoint}/polls/getLivePollsAdmin?offset=${in_data.offset}&limit=${in_data.limit}`;
     in_data.search.length ? url += `&search=${in_data.search}` : '';
     return this.httpClient.get( url, httpOptions )
       .pipe(

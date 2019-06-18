@@ -163,13 +163,22 @@ export class PollsListingComponent implements OnInit {
           }
         } else {
 
-          console.log('result');
-          console.log(result);
-          this.polls = '';
-          this.totalRecords = 0;
-          this.polls = result.data;
-          this.totalRecords = result.cnt;
-          this.generatePagination( this.in_data );
+          if( result.cnt > 0 ) {
+
+            console.log('result');
+            console.log(result);
+            this.polls = '';
+            this.totalRecords = 0;
+            this.polls = result.data;
+            this.totalRecords = result.cnt;
+            this.generatePagination( this.in_data );
+          } else {
+            Swal.fire({
+              type: 'error',
+              title: 'Record not found!',
+              text: 'Record not found!'
+            });
+          }
         }
       },
       error => {
@@ -210,7 +219,7 @@ export class PollsListingComponent implements OnInit {
           }
 
         } else {
-          this.getPollListing( this.searchTxt );
+          this.getPollListing( this.offset );
           Swal.fire(
             'Poll Deleted!',
             'Poll has been deleted succesfully.',

@@ -336,7 +336,7 @@ export class UserMasterComponent implements OnInit {
       return value;
     } );
 
-    tmpCountryIds.length == 246 ? tmpCountryIds = 'ALL' : tmpCountryIds = tmpCountryIds.join();
+    tmpCountryIds.length == 245 ? tmpCountryIds = 'ALL' : tmpCountryIds = tmpCountryIds.join();
     tmpGroupIds.length == 33 ? tmpGroupIds = 'ALL' : tmpGroupIds = tmpGroupIds.join();
 
     let tmpData = {
@@ -549,16 +549,16 @@ export class UserMasterComponent implements OnInit {
     let data = this.userForm.value;
     let universityEmail = data.universityEmail;
 
-    var res = universityEmail.split("@");
-    if( res[1] != 'co.uk' ) {
+    // var res = universityEmail.split("@");
+    // if( res[1] != 'co.uk' ) {
 
-      Swal.fire({
-        type: 'info',
-        title: 'Invalid Email, Only co.uk emails allowed!',
-        text: 'Invalid Email, Only co.uk emails allowed!'
-      });
-      return;
-    }
+    //   Swal.fire({
+    //     type: 'info',
+    //     title: 'Invalid Email, Only co.uk emails allowed!',
+    //     text: 'Invalid Email, Only co.uk emails allowed!'
+    //   });
+    //   return;
+    // }
     
     if( this.isUserIdProvidedFlag ) {
       this.updateUser();
