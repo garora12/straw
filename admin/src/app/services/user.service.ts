@@ -100,7 +100,8 @@ export class UserService {
       }
     };
 
-    let url = `${this.apiEndPoint}/users`;
+    // let url = `${this.apiEndPoint}/users`;
+    let url = `${this.apiEndPoint}/users/hard`;
     return this.httpClient.delete(
       url,
       options
