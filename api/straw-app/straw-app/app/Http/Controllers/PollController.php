@@ -362,7 +362,7 @@ class PollController extends BaseController {
                     'data'      =>      [
                         'polls'     =>  $polls = $this->PollService->getInsertedPoll( $poll['id'] ),
                         'notificationDetails' => [
-                            'sender'        =>      $this->notificationService->newPollSent( $this->loggedInUser ),
+                            // 'sender'        =>      $this->notificationService->newPollSent( $this->loggedInUser ),
                             'receivers'     =>      $this->notificationService->newPollReceived( $poll['id'], $poll )
                         ],
                         'pollShareLink' => url() .'/poll/share/'. base64_encode( $poll['id'] )

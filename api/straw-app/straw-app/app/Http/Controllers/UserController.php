@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 use Validator;
+
 use App\User;
 use App\RelUserGroup;
+
 use Firebase\JWT\JWT;
 use Illuminate\Http\Request;
 use Firebase\JWT\ExpiredException;
@@ -14,6 +16,7 @@ use Illuminate\Support\Facades\Mail;
 use Redirect,Response,DB,Config;
 
 use App\Services\UserService;
+use App\Services\PollService;
 use App\Services\UserNotificationSettingService;
 use App\Services\UserPointsService;
 
@@ -31,12 +34,13 @@ class UserController extends BaseController {
      * @param  \Illuminate\Http\Request  $request
      * @return void
      */
-    public function __construct(Request $request, UserService $UserService, UserNotificationSettingService $UserNotificationSettingService, UserPointsService $UserPointsService) {
+    public function __construct(Request $request, UserService $UserService, PollService $PollService, UserNotificationSettingService $UserNotificationSettingService, UserPointsService $UserPointsService) {
         $this->request = $request;
         $this->loggedInUser = $this->request->auth;
         $this->userService = $UserService;
         $this->userPointsService = $UserPointsService;
         $this->userNotificationSettingService = $UserNotificationSettingService;
+        $this->pollService = $PollService;
     }
 
     public function getAllUsersCount() {
@@ -1050,6 +1054,10 @@ class UserController extends BaseController {
 
         $result = User::destroy($id);
         if( $result ) {
+
+            $userId = intval($id);
+            $this->pollService->deleteAllPollDataByUserId( $userId );
+            $this->userService->deleteAllUserDataByUserId( $userId );
 
             return response()->json([
                 'message' => 'Hard delete successfull. Record deleted successfully!',

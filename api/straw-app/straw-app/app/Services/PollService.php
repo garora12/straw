@@ -3152,5 +3152,74 @@ class PollService {
 
         return Poll::select( 'id', 'question', 'imageLink' )->where( 'id', $pollId )->get()->first()->toArray();
     }
+
+    public function getAllPollIdsArrByUserId( $userId ) {
+
+        $result = Poll::where([
+            ['userId', '=', $userId],
+            ['status', '=', 'OPEN'],
+        ])
+        ->select( 'id' )
+        ->get(); 
+
+        return $result->toArray();
+    }
+
+    public function deleteAllPollDataByUserId( $userId ) {
+
+        $pollIds = [];
+        $result = $this->getAllPollIdsArrByUserId( $userId );
+        if( count( $result ) > 0 ) {
+
+            foreach( $result AS $key => $values ) {
+    
+                $pollIds[] = $values['id'];
+            }
+        } else {
+
+            return ['No Polls Created By Provided User!'];
+        }
+
+        if( count( $pollIds ) > 0 ) {
+
+            // delete poll branches where pollId in 
+            DB::table( 'rel_poll_branches' )->whereIn( 'pollId', $pollIds )->delete();
+    
+            // delete poll countries where pollId in 
+            DB::table( 'rel_poll_countries' )->whereIn( 'pollId', $pollIds )->delete();
+    
+            // delete poll genders where pollId in 
+            DB::table( 'rel_poll_genders' )->whereIn( 'pollId', $pollIds )->delete();
+    
+            // delete poll groups where pollId in 
+            DB::table( 'rel_poll_groups' )->whereIn( 'pollId', $pollIds )->delete();
+    
+            // delete poll years where pollId in 
+            DB::table( 'rel_poll_years' )->whereIn( 'pollId', $pollIds )->delete();
+            
+            // delete poll comments where pollId in 
+            DB::table( 'rel_poll_comments' )->whereIn( 'pollId', $pollIds )->delete();
+            // delete poll comments by where userId in 
+            DB::table( 'rel_poll_comments' )->where( 'userId', $userId )->delete();
+    
+            // delete poll comments likes by where pollId in 
+            DB::table( 'rel_poll_comments_likes' )->whereIn( 'pollId', $pollIds )->delete();
+            // delete poll comments likes by where userId in 
+            DB::table( 'rel_poll_comments_likes' )->where( 'userId', $userId )->delete();
+    
+            // delete poll votes by where pollId in 
+            DB::table( 'rel_poll_votes' )->whereIn( 'pollId', $pollIds )->delete();
+            // delete poll votes by where userId in 
+            DB::table( 'rel_poll_votes' )->where( 'userId', $userId )->delete();
+    
+            // delete polls by userId
+            DB::table( 'polls' )->where( 'userId', $userId )->delete();
+
+            return ['Polls Data Delete Successfully!'];
+        } else {
+
+            return ['No Polls To Delete!'];
+        }
+    }
 }
 ?>

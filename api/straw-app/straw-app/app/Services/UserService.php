@@ -425,5 +425,25 @@ class UserService {
         DB::table('users')->where( 'universityEmail', $in_data['universityEmail'] )->update($in_data);
         return true;
     }
+
+    public function deleteAllUserDataByUserId( $userId ) {
+
+        // delete user groups
+        DB::table( 'rel_user_groups' )->where( 'userId', $userId )->delete();
+
+        // delete user countries
+        DB::table( 'rel_user_countries' )->where( 'userId', $userId )->delete();
+
+        // delete user points
+        DB::table( 'rel_user_points' )->where( 'userId', $userId )->delete();
+
+        // delete user notification tokens
+        DB::table( 'rel_user_notification_tokens' )->where( 'userId', $userId )->delete();
+        
+        // delete user notification settings
+        DB::table( 'user_notification_settings' )->where( 'userId', $userId )->delete();
+
+        return true;
+    }
 }
 ?>
