@@ -18,8 +18,10 @@ class UserPointsService {
             $in_data['points'] = 500;
 
         } else if( $in_data['transactionFor'] == 'POLLCREATED' ) {
-            $in_data['transactionType'] = 'DEBIT';
-            $in_data['points'] = 10;
+            // $in_data['transactionType'] = 'DEBIT';
+            // $in_data['points'] = 10;
+            $in_data['transactionType'] = 'CREDIT';
+            $in_data['points'] = 5;
 
         } else if( $in_data['transactionFor'] == 'POLLVOTED' ) {
             $in_data['transactionType'] = 'CREDIT';
